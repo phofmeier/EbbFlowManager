@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  app:
+    image: ghcr.io/phofmeier/mqtt2db:latest
+    restart: unless-stopped
+    # Custom Configuration
+    volumes:
+      - ./config.yml:/home/app/config.yml
+
+    depends_on:
+      - db
+      - mosquitto
+
+  dash_app:
+    image: ghcr.io/phofmeier/mqtt2db:latest
+    restart: unless-stopped
+    command: mqtt2db_dash
+    # Custom Configuration
+    volumes:
+      - ./config.yml:/home/app/config.yml
+
+    depends_on:
+      - db
+      - mosquitto
+    ports:
+      - 8050:8050
+
+  # Database
+  db:
+    image: mongo:latest
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/data/db
+
+    # Uncomment to change startup options
+    # environment:
+    #  MONGO_INITDB_ROOT_USERNAME: root
+    #  MONGO_INITDB_ROOT_PASSWORD: example
+    #  MONGO_INITDB_DATABASE: your-database-here
+
+    ports:
+      - 27017:27017
+
+  # MQTT brocker
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    #hostname: mosquitto
+    #container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      # - "9001:9001"
+
+    # Add for custom configuration
+    #  volumes:
+    #    - ./mosquitto:/etc/mosquitto
+    #    - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+volumes:
+  mongodb-data:

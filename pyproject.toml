@@ -1,0 +1,78 @@
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+
+[project]
+name = "ebb_flow_manager"
+authors = [{ name = "Peter Hofmeier", email = "phofmeier@googlemail.com" }]
+description = "Application to save mqtt messages to a Database"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+dependencies = [
+    "paho-mqtt >= 2.1.0",
+    "pymongo[srv] >= 4.8.0",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=7.1.0",
+    "pytest>=8.2.2",
+    "mypy>=1.10.1",
+    "black>=24.4.2",
+    "codespell>=2.3.0",
+    "pre-commit>=3.7.1",
+    "coverage",
+]
+# , "mkdocs>=1.2.3", "mkdocstrings[python-legacy]>=0.18.0", "mkdocs-material>=8.1.9", "mkdocs-bibtex>=2.0.1", "matplotlib>=3.6.2"
+
+[tool.setuptools.packages.find]
+where = ["src", "submodule"]
+
+[project.scripts]
+ebb_flow_manager = "ebb_flow_manager.ebb_flow_manager:main"
+
+[tool.setuptools_scm]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "tests", "examples", "tools"]
+line_length = 88
+
+[tool.mypy]
+ignore_missing_imports = true
+files = "src,examples,tests,tools"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = [
+    "src",
+    ]
+
+[tool.flake8]
+doctests = true
+exit_zero = false
+max-line-length = 88
+pretty = true
+show_error_codes = true
+statistics = true
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    ".mypy_cache",
+    "output",
+    "venv",
+    "build",
+]
+ignore = ["I100", "I201", "E203", "W503"]
+
+
+[tool.codespell]
+quiet-level = 3
