@@ -70,7 +70,8 @@ services:
       # - "9001:9001"
     volumes:
       # - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto/config:/mosquitto/config
+      # - ./mosquitto/config:/mosquitto/config
+      - .:/workspace
 
   # Add for custom configuration
   # volumes:
