@@ -1,18 +1,35 @@
 import panel as pn
+import param
 
 class Configurator(pn.viewable.Viewer):
+    new_pump_time_s = param.Integer(bounds=(0,10*60))
+    
+    new_times_minutes_per_day = param.List(item_type=int)
+
+    def __init__(self, config_data,id, mqtt, **params):
+        super().__init__(**params)
+        self.config_data = config_data
+        self.new_pump_time_s = self.config_data.pump_cycles["pump_time_s"]
+        self.new_times_minutes_per_day = self.config_data.pump_cycles["times_minutes_per_day"]
+        self.mqtt = mqtt
+        self.id = id
+        
+
+    def setNewConfig(self, event):
+        self.mqtt.publish_new_config({"id":self.id, "pump_cycles":{"pump_time_s":self.new_pump_time_s,"nr_pump_cycles":len(self.new_times_minutes_per_day), "times_minutes_per_day":self.new_times_minutes_per_day}})
+        print("new_config_set")
+
+
 
     def __panel__(self):
+        curr_data = pn.panel(self.config_data)
+        new_params = pn.panel(self.param)
 
-        return pn.template.MaterialTemplate(
-            site="Ebb Flow Manager",
-            title="Configurator",
-            # sidebar=[variable_widget, window_widget, sigma_widget],
-            # main=[bound_plot],
-            )
+        new_conf_button = pn.widgets.Button(name='New Config', button_type='primary')
+        pn.bind(self.setNewConfig, new_conf_button, watch=True)
 
 
+        return pn.Column(curr_data, new_params, new_conf_button)
 
 
-configurator = Configurator()
-configurator.servable()
+

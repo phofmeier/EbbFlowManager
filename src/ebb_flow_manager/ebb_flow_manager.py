@@ -1,20 +1,41 @@
 import panel as pn
 
-from ebb_flow_controller import EbbFlowController
 
-class EbbFlowManager(pn.viewable.Viewer):
+from database.mongo_db import Database
+from database.ebb_flow_controller_data import EbbFlowControllerData
+from configurator import Configurator
+from mqtt.mqtt import MQTTConnection
+pn.extension()
+db = Database()
+mqtt = MQTTConnection()
 
-    def __panel__(self):
-
-        return pn.template.MaterialTemplate(
-            site="Ebb Flow Manager",
-            title="Overview",
-            sidebar=[variable_widget, window_widget, sigma_widget],
-            main=[pn.layout.GridBox(EbbFlowController(0), EbbFlowController(1), EbbFlowController(2), ncols=2)],
-            )
+all_status_data = db.getAllDataFrom("efc", "status_static")
 
 
+controller_data = {}
+for status_data in all_status_data:
+    id = status_data["id"]
+    if id not in controller_data:
+        # add new data store
+        controller_data.update({id:EbbFlowControllerData(id)})
+    controller_data[id].update_status(status_data)
+
+all_config_data = db.getAllDataFrom("efc", "config_static") 
+
+for config_data in all_config_data:
+    id = config_data["id"]
+    if id not in controller_data:
+        continue
+   
+    controller_data[id].update_config(config_data)
 
 
-main_app = EbbFlowManager()
-main_app.servable()
+for id, controller in controller_data.items():
+    pn.panel(id).servable()
+    pn.panel(controller.status).servable()
+    Configurator(controller.config, id, mqtt).servable()
+
+# print(controller_data)
+
+
+
