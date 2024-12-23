@@ -1,8 +1,8 @@
 import panel as pn
 import param
 
-from database.ebb_flow_controller_data import EbbFlowControllerConfig
-from mqtt.mqtt import MQTTConnection
+from ebb_flow_manager.database.ebb_flow_controller_data import EbbFlowControllerConfig
+from ebb_flow_manager.mqtt.mqtt import MQTTConnection
 
 
 class ControllerConfiguratorView(pn.viewable.Viewer):

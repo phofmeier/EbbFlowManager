@@ -1,7 +1,7 @@
 import panel as pn
 import param
 
-from database.ebb_flow_controller_data import EbbFlowControllerStatus
+from ebb_flow_manager.database.ebb_flow_controller_data import EbbFlowControllerStatus
 
 
 class ControllerStatusView(pn.viewable.Viewer):
