@@ -17,30 +17,30 @@ services:
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-  mqtt2db:
-    image: ghcr.io/phofmeier/mqtt2db:latest
-    restart: unless-stopped
-    # Custom Configuration
-    volumes:
-      - ./config.yml:/home/app/config.yml
+  #   mqtt2db:
+  #     image: ghcr.io/phofmeier/mqtt2db:latest
+  #     restart: unless-stopped
+  #     # Custom Configuration
+  #     volumes:
+  #       - ./config.yml:/home/app/config.yml
 
-    depends_on:
-      - db
-      - mosquitto
+  #     depends_on:
+  #       - db
+  #       - mosquitto
 
-  mqtt2db_dash_app:
-    image: ghcr.io/phofmeier/mqtt2db:latest
-    restart: unless-stopped
-    command: mqtt2db_dash
-    # Custom Configuration
-    volumes:
-      - ./config.yml:/home/app/config.yml
+  #   mqtt2db_dash_app:
+  #     image: ghcr.io/phofmeier/mqtt2db:latest
+  #     restart: unless-stopped
+  #     command: mqtt2db_dash
+  #     # Custom Configuration
+  #     volumes:
+  #       - ./config.yml:/home/app/config.yml
 
-    depends_on:
-      - db
-      - mosquitto
-    ports:
-      - 8050:8050
+  #     depends_on:
+  #       - db
+  #       - mosquitto
+  #     ports:
+  #       - 8050:8050
 
   db:
     image: mongo:latest
@@ -69,9 +69,7 @@ services:
       - "1883:1883"
       # - "9001:9001"
     volumes:
-      # - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      # - ./mosquitto/config:/mosquitto/config
-      - .:/workspace
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   # Add for custom configuration
   # volumes:
