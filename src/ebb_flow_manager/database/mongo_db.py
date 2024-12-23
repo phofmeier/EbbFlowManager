@@ -6,7 +6,7 @@ from pymongo import MongoClient
 class Database:
     """Implementation of connection to a MongoDB database."""
 
-    def __init__(self, connection_string = "db:27017") -> None:
+    def __init__(self, connection_string="db:27017") -> None:
         """Initialize the connection to the database.
 
         Args:
@@ -14,7 +14,6 @@ class Database:
         """
         self.logger = logging.getLogger(__name__)
         self.client = MongoClient(connection_string)
-
 
     def getDatabasesNames(self) -> list[str]:
         return self.client.list_database_names()
