@@ -1,4 +1,5 @@
 import panel as pn
+
 from ebb_flow_manager.database.ebb_flow_controller_data import EbbFlowControllerData
 from ebb_flow_manager.database.mongo_db import Database
 from ebb_flow_manager.mqtt.mqtt import MQTTConnection
@@ -41,10 +42,13 @@ def updateData():
         flex_box.append(widget_box)
 
 
+cb = pn.state.add_periodic_callback(updateData, 5000, timeout=5000)
+
+
 def main():
-    cb = pn.state.add_periodic_callback(updateData, 5000, timeout=5000)
     pn.serve(flex_box, admin=True)
 
 
 if __name__ == "__main__":
-    main()
+    flex_box.servable()
+    # main()

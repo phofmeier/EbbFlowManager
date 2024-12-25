@@ -32,6 +32,7 @@ services:
   mosquitto:
     image: eclipse-mosquitto:latest
     restart: unless-stopped
-   
+    network_mode: service:db
+
 volumes:
   mongodb-data:

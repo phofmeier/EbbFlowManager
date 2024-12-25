@@ -39,10 +39,6 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
         print("new_config_set")
 
     def __panel__(self):
-
-        curr_data = pn.panel(self.config_data)
-        new_params = pn.panel(self.param)
-
         new_conf_button = pn.widgets.Button(name="New Config", button_type="primary")
         pn.bind(self.setNewConfig, new_conf_button, watch=True)
 

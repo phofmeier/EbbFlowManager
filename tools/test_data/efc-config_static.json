@@ -1,31 +1,21 @@
 [
-    {
+  {
     "id": 0,
     "pump_cycles": {
       "pump_time_s": 485,
       "nr_pump_cycles": 4,
-      "times_minutes_per_day": [
-        390,
-        720,
-        1054,
-        1200
-      ]
+      "times_minutes_per_day": [390, 720, 1054, 1200]
     },
     "ts_received": {
       "$date": "2024-12-22T17:33:28.341Z"
     }
-  }, 
+  },
   {
     "id": 1,
     "pump_cycles": {
       "pump_time_s": 485,
       "nr_pump_cycles": 4,
-      "times_minutes_per_day": [
-        390,
-        720,
-        1054,
-        1200
-      ]
+      "times_minutes_per_day": [390, 720, 1054, 1200]
     },
     "ts_received": {
       "$date": "2024-12-22T17:33:28.341Z"

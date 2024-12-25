@@ -1,7 +1,7 @@
-import os
 import json
-from pymongo import MongoClient
+import os
 
+from pymongo import MongoClient
 
 connection_string = "db:27017"
 client = MongoClient(connection_string)
@@ -28,7 +28,6 @@ for json_file in get_all_files():
 
     with open(json_file) as file:
         all_data = json.load(file)
-    print(all_data)
 
     if type_name == "static":
         for data in all_data:

@@ -7,6 +7,7 @@ class MQTTConnection:
     def __init__(self):
 
         broker = "192.168.2.106"
+        broker = "localhost"
         port = 1883
         self.published_messages = []
 
