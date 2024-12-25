@@ -43,7 +43,7 @@ def updateData():
 
 def main():
     cb = pn.state.add_periodic_callback(updateData, 5000, timeout=5000)
-    pn.serve(flex_box)
+    pn.serve(flex_box, admin=True)
 
 
 if __name__ == "__main__":
