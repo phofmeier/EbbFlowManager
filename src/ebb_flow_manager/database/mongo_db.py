@@ -3,17 +3,18 @@ import logging
 from pymongo import MongoClient
 
 
-class Database:
+class MongoDbImplementation:
     """Implementation of connection to a MongoDB database."""
 
-    def __init__(self, connection_string="db:27017") -> None:
+    def __init__(self, config: dict) -> None:
         """Initialize the connection to the database.
 
         Args:
             config (dict): Configuration for the database connection.
         """
+        self.config = config
         self.logger = logging.getLogger(__name__)
-        self.client = MongoClient(connection_string)
+        self.client = MongoClient(self.config["connection_string"])
 
     def getDatabasesNames(self) -> list[str]:
         return self.client.list_database_names()
