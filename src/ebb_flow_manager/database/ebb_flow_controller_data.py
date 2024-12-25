@@ -1,4 +1,5 @@
 import param
+from dateutil import parser
 
 
 class EbbFlowControllerConfig(param.Parameterized):
@@ -10,7 +11,10 @@ class EbbFlowControllerConfig(param.Parameterized):
 
     def update(self, data):
         self.pump_cycles = data["pump_cycles"]
-        self.last_updated = data["ts_received"]
+        ts_received = data["ts_received"]
+        if isinstance(ts_received, str):
+            ts_received = parser.parse(ts_received)
+        self.last_updated = ts_received
 
 
 class EbbFlowControllerStatus(param.Parameterized):
@@ -25,7 +29,11 @@ class EbbFlowControllerStatus(param.Parameterized):
 
     def update(self, data):
         self.connection = data["connection"]
-        self.last_updated = data["ts_received"]
+
+        ts_received = data["ts_received"]
+        if isinstance(ts_received, str):
+            ts_received = parser.parse(ts_received)
+        self.last_updated = ts_received
 
 
 class EbbFlowControllerData:

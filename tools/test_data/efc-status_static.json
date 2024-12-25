@@ -2,15 +2,11 @@
   {
     "id": 0,
     "connection": "connected",
-    "ts_received": {
-      "$date": "2024-12-22T18:46:32.074Z"
-    }
+    "ts_received": "2024-12-22T18:46:32.074Z"
   },
   {
     "id": 1,
     "connection": "disconnected",
-    "ts_received": {
-      "$date": "2024-12-22T18:46:32.074Z"
-    }
+    "ts_received": "2024-12-22T18:46:32.074Z"
   }
 ]
