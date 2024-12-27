@@ -1,11 +1,11 @@
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+requires = ["setuptools>=75", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [project]
 name = "ebb_flow_manager"
 authors = [{ name = "Peter Hofmeier", email = "phofmeier@googlemail.com" }]
-description = "Application to save mqtt messages to a Database"
+description = "Application to manage multiple Ebb Flow Controller"
 readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "MIT" }
@@ -31,10 +31,10 @@ dev = [
 # , "mkdocs>=1.2.3", "mkdocstrings[python-legacy]>=0.18.0", "mkdocs-material>=8.1.9", "mkdocs-bibtex>=2.0.1", "matplotlib>=3.6.2"
 
 [tool.setuptools.packages.find]
-where = ["src", "submodule"]
+where = ["src"]
 
 [project.scripts]
-ebb_flow_manager = "ebb_flow_manager.ebb_flow_manager:main"
+ebb_flow_manager = "ebb_flow_manager.ebb_flow_manager_app:main"
 
 [tool.setuptools_scm]
 

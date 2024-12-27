@@ -16,6 +16,12 @@ class EbbFlowControllerConfig(param.Parameterized):
             ts_received = parser.parse(ts_received)
         self.last_updated = ts_received
 
+    def __eq__(self, value):
+        return (
+            self.pump_cycles == value.pump_cycles
+            and self.last_updated == value.last_updated
+        )
+
 
 class EbbFlowControllerStatus(param.Parameterized):
     connection = param.String(
@@ -35,6 +41,12 @@ class EbbFlowControllerStatus(param.Parameterized):
             ts_received = parser.parse(ts_received)
         self.last_updated = ts_received
 
+    def __eq__(self, value):
+        return (
+            self.connection == value.connection
+            and self.last_updated == value.last_updated
+        )
+
 
 class EbbFlowControllerData:
     def __init__(self, id: int):
@@ -48,3 +60,8 @@ class EbbFlowControllerData:
     def update_config(self, data: dict):
         self.config.update(data)
         pass
+
+    def __eq__(self, other):
+        if isinstance(other, EbbFlowControllerData):
+            return self.status == other.status and self.config == other.config
+        return False

@@ -47,15 +47,14 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
             "## Configuration",
             pn.panel(f"- Last updated: {self.config_data.last_updated}"),
             "### Nutrition Pump",
-            pn.Row(
+            pn.layout.GridBox(
                 "Pumping time in seconds",
                 pn.panel(self.config_data.pump_cycles["pump_time_s"]),
                 pn.widgets.IntInput.from_param(self.param.new_pump_time_s),
-            ),
-            pn.Row(
                 "Pumping times in minutes per day",
                 pn.panel(self.config_data.pump_cycles["times_minutes_per_day"]),
                 pn.panel(self.param.new_times_minutes_per_day),
+                ncols=3,
             ),
             new_conf_button,
         )
