@@ -10,7 +10,7 @@ class Database:
         self.updateControllerData()
 
     def updateControllerData(self):
-        all_status_data = self.db_connection.getAllDataFrom(
+        all_status_data = self.db_connection.get_all_data_from(
             self.config["database_name"], self.config["collection_status_name"]
         )
         for status_data in all_status_data:
@@ -20,7 +20,7 @@ class Database:
                 self.controller_data.update({id: EbbFlowControllerData(id)})
             self.controller_data[id].update_status(status_data)
 
-        all_config_data = self.db_connection.getAllDataFrom(
+        all_config_data = self.db_connection.get_all_data_from(
             self.config["database_name"], self.config["collection_config_name"]
         )
 

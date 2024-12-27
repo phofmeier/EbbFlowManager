@@ -46,7 +46,7 @@ class Config:
         try:
             with open(self._filename, "r") as file:
                 self.config = yaml.safe_load(file)
-                self.config = Config.deepMergeDict(self.config, self._default_config)
+                self.config = Config.deep_merge_dict(self.config, self._default_config)
         except FileNotFoundError:
             self.config = self._default_config
 
@@ -69,7 +69,7 @@ class Config:
         return self.config[name]
 
     @staticmethod
-    def deepMergeDict(source: dict, destination: dict) -> dict:
+    def deep_merge_dict(source: dict, destination: dict) -> dict:
         """Deep merge two dictionaries.
 
         Args:
@@ -83,7 +83,7 @@ class Config:
             if isinstance(value, dict):
                 # get node or create one
                 node = destination.setdefault(key, {})
-                Config.deepMergeDict(value, node)
+                Config.deep_merge_dict(value, node)
             else:
                 destination[key] = value
 

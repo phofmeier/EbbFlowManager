@@ -4,12 +4,19 @@ from ebb_flow_manager.database.ebb_flow_controller_data import EbbFlowController
 
 
 class ControllerStatusView(pn.viewable.Viewer):
+    """View to show the current controller status."""
+
     def __init__(self, status_data: EbbFlowControllerStatus, **params):
-        self.status_data = status_data
+        """Initialize the view for the current controller status."""
         super().__init__(**params)
+        self.status_data = status_data
 
-    def __panel__(self):
+    def __panel__(self) -> pn.panel:
+        """Panel showing the status of the controller.
 
+        Returns:
+            pn.panel: panel to show the status.
+        """
         return pn.Column(
             "## Status",
             pn.panel(

@@ -33,7 +33,7 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
         # Configuration for the nutrition pump
         self.nutrition_pump_config = NutritionPumpConfig(self.config_data.pump_cycles)
 
-    def setNewConfig(self, _):
+    def set_new_config(self, _):
         """Set the new configuration."""
         self.mqtt.publish_new_config(
             {
@@ -51,7 +51,7 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
         new_conf_button = pn.widgets.Button(
             name="Send new config", button_type="primary"
         )
-        pn.bind(self.setNewConfig, new_conf_button, watch=True)
+        pn.bind(self.set_new_config, new_conf_button, watch=True)
 
         return pn.Column(
             "## Configuration",
