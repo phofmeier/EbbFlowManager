@@ -8,7 +8,9 @@ import panel as pn
 from ebb_flow_manager.config import Config
 from ebb_flow_manager.database.database import Database
 from ebb_flow_manager.mqtt.mqtt import MQTTConnection
-from ebb_flow_manager.views.controller_configurator import ControllerConfiguratorView
+from ebb_flow_manager.views.controller_configurator.controller_configurator import (
+    ControllerConfiguratorView,
+)
 from ebb_flow_manager.views.controller_status import ControllerStatusView
 
 pn.extension(design="material")
