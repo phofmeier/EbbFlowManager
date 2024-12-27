@@ -13,6 +13,8 @@ Use the following labels:
 
 ## [UNRELEASED]
 
+## [0.0.1] - 2024-12-27
+
 ### Added
 
 - [Patch] First Version
