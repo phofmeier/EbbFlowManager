@@ -112,5 +112,5 @@ def main():
 if __name__ == "__main__":
     # start_serve().servable()
     main()
-else:
+elif __name__.startswith("bokeh_app"):
     start_serve().servable()
