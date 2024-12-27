@@ -110,7 +110,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # start_serve().servable()
+    main()
+else:
     start_serve().servable()
-    # main()
-
-start_serve().servable()

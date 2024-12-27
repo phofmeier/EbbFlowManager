@@ -17,7 +17,7 @@ class Database:
             id = status_data[self.config["id_field_name"]]
             if id not in self.controller_data:
                 # add new data store
-                self.controller_data.update({id: EbbFlowControllerData(id)})
+                self.controller_data.update({id: EbbFlowControllerData()})
             self.controller_data[id].update_status(status_data)
 
         all_config_data = self.db_connection.get_all_data_from(
