@@ -31,7 +31,7 @@ def updateData(controller_data, logger, db):
     logger.info("Data changed")
 
 
-def layout_flex_box(flex_box, controller_data, mqtt, logger):
+def layout_flex_box(flex_box, controller_data, mqtt):
     flex_box.clear()
     for id, controller in controller_data.items():
         name = pn.panel(f"# Controller {id}")
@@ -60,7 +60,6 @@ def start_serve():
         flex_box=flex_box,
         controller_data=controller_data,
         mqtt=mqtt,
-        logger=logger,
     )
     template = pn.template.MaterialTemplate(
         title="Ebb Flow Manager",
