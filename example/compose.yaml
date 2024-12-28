@@ -4,6 +4,8 @@ services:
   ebbflowmanager:
     image: ghcr.io/phofmeier/ebbflowmanager:latest
     restart: unless-stopped
+    volumes:
+      - ./config_manager.yml:/home/app/config.yml
 
     depends_on:
       - db
@@ -14,7 +16,7 @@ services:
     restart: unless-stopped
     # Custom Configuration
     volumes:
-      - ./config.yml:/home/app/config.yml
+      - ./config_mqtt2db.yml:/home/app/config.yml
 
     depends_on:
       - db
