@@ -6,10 +6,12 @@ services:
     restart: unless-stopped
     volumes:
       - ./config_manager.yml:/home/app/config.yml
-
+    command: panel serve src/ebb_flow_manager/ebb_flow_manager_app.py
     depends_on:
       - db
       - mosquitto
+    ports:
+      - 5006:5006
 
   mqtt2db:
     image: ghcr.io/phofmeier/mqtt2db:latest
