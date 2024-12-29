@@ -20,5 +20,7 @@ cd ./example
 docker compose build
 docker compose up
 ```
+
 ### Open Ebb Flow Manager in Browser
+
 Open [http://localhost:5006/](http://localhost:5006/)

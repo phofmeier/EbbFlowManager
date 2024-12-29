@@ -10,13 +10,13 @@ Web application to show the status and manage the configuration of multiple [Ebb
 
 The System consists of 5 Components
 
- - [Ebb Flow Manager](https://github.com/phofmeier/EbbFlowManager)
- - [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl)
- - MQTT Broker
- - [MQTT2DB](https://github.com/phofmeier/mqtt2db)
- - Mongo DB Database
+- [Ebb Flow Manager](https://github.com/phofmeier/EbbFlowManager)
+- [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl)
+- MQTT Broker
+- [MQTT2DB](https://github.com/phofmeier/mqtt2db)
+- Mongo DB Database
 
-Each [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) is connected to one hardware rack and controls it independently. For configuration, status and data logging the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) has a MQTT connection. All the data from the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) is written with the [MQTT2DB](https://github.com/phofmeier/mqtt2db) application to a Mongo DB database. The [Ebb Flow Manager](https://github.com/phofmeier/EbbFlowManager) reads the data from this Database to show the data of the Controller and can send new configurations to the Controller by publishing MQTT Messages. 
+Each [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) is connected to one hardware rack and controls it independently. For configuration, status and data logging the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) has a MQTT connection. All the data from the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) is written with the [MQTT2DB](https://github.com/phofmeier/mqtt2db) application to a Mongo DB database. The [Ebb Flow Manager](https://github.com/phofmeier/EbbFlowManager) reads the data from this Database to show the data of the Controller and can send new configurations to the Controller by publishing MQTT Messages.
 
 ```mermaid
 graph TD
@@ -50,9 +50,9 @@ DB --> Configurator
 
 ## Usage
 
-See the [example](example/README.md) on how to run all the needed components to use the Ebb Flow Manager. 
+See the [example](example/README.md) on how to run all the needed components to use the Ebb Flow Manager.
 
-For more in detail explanation of the configuration see the documentation of the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl) 
+For more in detail explanation of the configuration see the documentation of the [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl)
 
 ## Deployment
 
