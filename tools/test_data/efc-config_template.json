@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Default",
+    "pump_cycles": {
+      "pump_time_s": 485,
+      "nr_pump_cycles": 4,
+      "times_minutes_per_day": [390, 720, 1050, 1200]
+    }
+  },
+  {
+    "name": "Other",
+    "pump_cycles": {
+      "pump_time_s": 120,
+      "nr_pump_cycles": 2,
+      "times_minutes_per_day": [720, 1200]
+    }
+  },
+  {
+    "name": "Only times",
+    "pump_cycles": {
+      "nr_pump_cycles": 3,
+      "times_minutes_per_day": [120, 1000, 1400]
+    }
+  }
+]

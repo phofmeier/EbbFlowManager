@@ -53,6 +53,7 @@ def layout_flex_box(
     flex_box: pn.layout.FlexBox,
     controller_data: dict,
     mqtt: MQTTConnection,
+    db: Database,
 ) -> pn.layout.FlexBox:
     """Layout the flex box with all controller data.
 
@@ -68,7 +69,7 @@ def layout_flex_box(
     for id, controller in controller_data.items():
         name = pn.panel(f"# Controller {id}")
         status = ControllerStatusView(controller.status)
-        config = ControllerConfiguratorView(controller.config, id, mqtt)
+        config = ControllerConfiguratorView(controller.config, id, mqtt, db)
         widget_box = pn.WidgetBox(name, status, config)
         flex_box.append(widget_box)
 
@@ -97,6 +98,7 @@ def start_serve() -> pn.panel:
         flex_box=flex_box,
         controller_data=controller_data,
         mqtt=mqtt,
+        db=db,
     )
     template = pn.template.MaterialTemplate(
         title="Ebb Flow Manager",
