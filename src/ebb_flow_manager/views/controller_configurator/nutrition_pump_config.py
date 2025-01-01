@@ -32,6 +32,13 @@ class NutritionPumpConfig(pn.viewable.Viewer):
             "times_minutes_per_day"
         ]
 
+        self.new_nr_pump_times_input_widget = pn.widgets.IntInput(
+            name="New number of pumping times",
+            value=len(self.new_times_minutes_per_day),
+            end=24,
+            step=1,
+        )
+
     def update_number_pumping_times(self, new_nr_pump_times: int):
         """Update the number of the new pumping times.
 
@@ -58,6 +65,7 @@ class NutritionPumpConfig(pn.viewable.Viewer):
 
     def update_time_input_widgets(self, *param):
         """Update the input widgets for the pump time."""
+        self.new_nr_pump_times_input_widget.value = len(self.new_times_minutes_per_day)
         self.new_nr_pump_times_inputs.clear()
         for i, new_pump_times_min_per_day in enumerate(self.new_times_minutes_per_day):
             time = datetime.time(
@@ -70,6 +78,14 @@ class NutritionPumpConfig(pn.viewable.Viewer):
             )
             self.new_nr_pump_times_inputs.append(new_widget)
             pn.bind(self.update_pump_time, new_time=new_widget, i=i, watch=True)
+
+    def update_selection_from_config(self, new_config: dict):
+        self.new_pump_time_s = new_config.get("pump_time_s", self.new_pump_time_s)
+        self.new_times_minutes_per_day = new_config.get(
+            "times_minutes_per_day", self.new_times_minutes_per_day
+        )
+
+        self.update_time_input_widgets()
 
     def get_new_config(self) -> dict:
         """Get the new configuration for the nutrition pump.
@@ -95,22 +111,26 @@ class NutritionPumpConfig(pn.viewable.Viewer):
                 f"- {int(min_per_day / 60):02}:{int(min_per_day % 60):02}\n"
             )
 
-        new_nr_pump_times = pn.widgets.IntInput(
+        self.new_nr_pump_times_input_widget = pn.widgets.IntInput(
             name="New number of pumping times",
-            value=len(self.curr_pump_cycle_conf["times_minutes_per_day"]),
+            value=len(self.new_times_minutes_per_day),
             end=24,
             step=1,
         )
-        pn.bind(self.update_number_pumping_times, new_nr_pump_times, watch=True)
+        pn.bind(
+            self.update_number_pumping_times,
+            self.new_nr_pump_times_input_widget,
+            watch=True,
+        )
 
         pn.bind(
             self.update_time_input_widgets,
-            new_nr_pump_times,
+            self.new_nr_pump_times_input_widget,
             self.new_times_minutes_per_day,
             watch=True,
         )
         self.update_time_input_widgets(
-            new_nr_pump_times, self.new_times_minutes_per_day
+            self.new_nr_pump_times_input_widget, self.new_times_minutes_per_day
         )
 
         return pn.Column(
@@ -121,7 +141,7 @@ class NutritionPumpConfig(pn.viewable.Viewer):
                 pn.widgets.IntInput.from_param(self.param.new_pump_time_s),
                 "#### Pumping timepoints per day\n" + curr_pumping_times_string,
                 pn.Column(
-                    new_nr_pump_times,
+                    self.new_nr_pump_times_input_widget,
                     self.new_nr_pump_times_inputs,
                 ),
                 pn.panel(""),

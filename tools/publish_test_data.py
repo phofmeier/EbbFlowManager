@@ -36,3 +36,10 @@ for json_file in get_all_files():
                 data,
                 upsert=True,
             )
+    else:
+        for data in all_data:
+            client[database][collection].replace_one(
+                {"name": data["name"]},
+                data,
+                upsert=True,
+            )

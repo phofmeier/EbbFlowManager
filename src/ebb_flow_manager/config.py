@@ -18,6 +18,8 @@ class Config:
                 "database_name": "efc",
                 "collection_status_name": "status_static",
                 "collection_config_name": "config_static",
+                "collection_config_template_name": "config_template",
+                "collection_used_template_name": "used_template",
                 "id_field_name": "id",
             },
             "logging": {
