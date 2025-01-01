@@ -42,7 +42,7 @@ def update_data(controller_data: pn.rx, logger: logging.Logger, db: Database):
         db (Database): connection to database for new data.
     """
     old_data = copy.deepcopy(controller_data.rx.value)
-    new_data = db.getControllerData()
+    new_data = db.get_controller_data()
     if old_data == new_data:
         return
     controller_data.rx.value = new_data

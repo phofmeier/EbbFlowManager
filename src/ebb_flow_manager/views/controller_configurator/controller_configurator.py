@@ -54,11 +54,15 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
         self.current_template_selection = self.selected_template
 
     def selected_new_template(self, selected_template_name: str):
+        """_Callback if anew Config Template was selected
+
+        Args:
+            selected_template_name (str): name of the newly selected template.
+        """
         self.nutrition_pump_config.update_selection_from_config(
             self.db.get_config_template(selected_template_name).get("pump_cycles", {})
         )
         self.selected_template = selected_template_name
-        print("New selected template", selected_template_name)
 
     def __panel__(self) -> pn.panel:
         """Build the panel for the configuration.

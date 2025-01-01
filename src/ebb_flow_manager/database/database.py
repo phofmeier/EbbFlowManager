@@ -3,13 +3,21 @@ from ebb_flow_manager.database.mongo_db import MongoDbImpl
 
 
 class Database:
+    """Interface to the database implementation."""
+
     def __init__(self, config: dict):
+        """Initialize and connect to the database.
+
+        Args:
+            config (dict): Database specific configuration.
+        """
         self.config = config
         self.db_impl = MongoDbImpl(config)
         self.controller_data: dict[int, EbbFlowControllerData] = {}
-        self.updateControllerData()
+        self.update_controller_data()
 
-    def updateControllerData(self):
+    def update_controller_data(self):
+        """Update the controller dict."""
         all_status_data = self.db_impl.get_status_data()
         for status_data in all_status_data:
             id = status_data[self.config["id_field_name"]]
@@ -27,21 +35,61 @@ class Database:
 
             self.controller_data[id].update_config(config_data)
 
-    def getControllerData(self) -> dict[int, EbbFlowControllerData]:
-        self.updateControllerData()
+    def get_controller_data(self) -> dict[int, EbbFlowControllerData]:
+        """Get all data of the controller.
+
+        Returns:
+            dict[int, EbbFlowControllerData]: Mapping of Controller id
+                                              to the actual data.
+        """
+        self.update_controller_data()
         return self.controller_data
 
-    def get_all_config_template_names(self):
+    def get_all_config_template_names(self) -> list[str]:
+        """Get a List containing all names of available config templates
+
+        Returns:
+            list[str]: List containing names of the available configs
+        """
         return self.db_impl.get_config_template_names()
 
-    def get_all_config_templates(self):
+    def get_all_config_templates(self) -> list[dict]:
+        """Get all the configuration templates.
+
+        Returns:
+            list[dict]: list containing all configuration template dicts.
+        """
         return self.db_impl.get_config_templates()
 
     def get_config_template(self, template_name: str) -> dict:
+        """Get a specific config template.
+
+        Returns an empty dict if the name is not in the database.
+
+        Args:
+            template_name (str): Name of the template to load from database.
+
+        Returns:
+            dict: Config template.
+        """
         return self.db_impl.get_config_template(template_name)
 
     def get_used_template_of(self, id: int) -> str:
+        """Get the currently used template of a specific controller.
+
+        Args:
+            id (int): Id of the controller
+
+        Returns:
+            str: Config Template name of the specific controller.
+        """
         return self.db_impl.get_used_template_of(id)
 
     def set_used_template_of(self, id: int, template_name: str):
+        """Set the current used template name of a specific controller.
+
+        Args:
+            id (int): id of the controller
+            template_name (str): name of the template used by this controller.
+        """
         self.db_impl.set_used_template_of(id, template_name)

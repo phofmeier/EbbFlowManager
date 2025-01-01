@@ -80,6 +80,11 @@ class NutritionPumpConfig(pn.viewable.Viewer):
             pn.bind(self.update_pump_time, new_time=new_widget, i=i, watch=True)
 
     def update_selection_from_config(self, new_config: dict):
+        """Update the selected values from a new config dict.
+
+        Args:
+            new_config (dict): dict containing the new configuration.
+        """
         self.new_pump_time_s = new_config.get("pump_time_s", self.new_pump_time_s)
         self.new_times_minutes_per_day = new_config.get(
             "times_minutes_per_day", self.new_times_minutes_per_day
