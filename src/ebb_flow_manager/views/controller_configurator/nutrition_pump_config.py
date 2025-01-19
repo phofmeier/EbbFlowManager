@@ -27,10 +27,10 @@ class NutritionPumpConfig(pn.viewable.Viewer):
         self.new_nr_pump_times_inputs = pn.Column()
 
         # Initialize with current values
-        self.new_pump_time_s = self.curr_pump_cycle_conf["pump_time_s"]
-        self.new_times_minutes_per_day = self.curr_pump_cycle_conf[
-            "times_minutes_per_day"
-        ]
+        self.new_pump_time_s = self.curr_pump_cycle_conf.get("pump_time_s", 0)
+        self.new_times_minutes_per_day = self.curr_pump_cycle_conf.get(
+            "times_minutes_per_day", []
+        )
 
         self.new_nr_pump_times_input_widget = pn.widgets.IntInput(
             name="New number of pumping times",
@@ -104,17 +104,45 @@ class NutritionPumpConfig(pn.viewable.Viewer):
             "times_minutes_per_day": self.new_times_minutes_per_day,
         }
 
+    def get_valid_config(self) -> dict:
+        """get all config which are valid.
+
+        Returns:
+            dict: new config containing only valid keys.
+        """
+        changed_config = {}
+        if self.new_pump_time_s > 0:
+            changed_config.update({"pump_time_s": self.new_pump_time_s})
+        if len(self.new_times_minutes_per_day) > 0:
+            changed_config.update(
+                {
+                    "nr_pump_cycles": len(self.new_times_minutes_per_day),
+                    "times_minutes_per_day": self.new_times_minutes_per_day,
+                }
+            )
+        return changed_config
+
     def __panel__(self) -> pn.panel:
         """Get the panel for configure the Nutrition pump.
 
         Returns:
             pn.panel: nutrition pump configuration panel
         """
-        curr_pumping_times_string = ""
-        for min_per_day in self.curr_pump_cycle_conf["times_minutes_per_day"]:
-            curr_pumping_times_string += (
-                f"- {int(min_per_day / 60):02}:{int(min_per_day % 60):02}\n"
-            )
+
+        if "times_minutes_per_day" in self.curr_pump_cycle_conf:
+            curr_pumping_timepoints_string = ""
+            for min_per_day in self.curr_pump_cycle_conf["times_minutes_per_day"]:
+                curr_pumping_timepoints_string += (
+                    f"- {int(min_per_day / 60):02}:{int(min_per_day % 60):02}\n"
+                )
+        else:
+            curr_pumping_timepoints_string = "NA"
+
+        curr_pumping_time_string = (
+            f"{self.curr_pump_cycle_conf['pump_time_s']} s"
+            if "pump_time_s" in self.curr_pump_cycle_conf
+            else "NA"
+        )
 
         self.new_nr_pump_times_input_widget = pn.widgets.IntInput(
             name="New number of pumping times",
@@ -141,10 +169,9 @@ class NutritionPumpConfig(pn.viewable.Viewer):
         return pn.Column(
             "### Nutrition Pump",
             pn.layout.GridBox(
-                f"#### Pumping time \n"
-                f"- {self.curr_pump_cycle_conf["pump_time_s"]} s",
+                f"#### Pumping time \n- {curr_pumping_time_string}",
                 pn.widgets.IntInput.from_param(self.param.new_pump_time_s),
-                "#### Pumping timepoints per day\n" + curr_pumping_times_string,
+                "#### Pumping timepoints per day\n" + curr_pumping_timepoints_string,
                 pn.Column(
                     self.new_nr_pump_times_input_widget,
                     self.new_nr_pump_times_inputs,

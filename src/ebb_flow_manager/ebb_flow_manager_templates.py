@@ -6,6 +6,7 @@ import panel as pn
 
 from ebb_flow_manager.config import Config
 from ebb_flow_manager.database.database import Database
+from ebb_flow_manager.views.template_editor import TemplateEditorView
 
 pn.extension(design="material")
 
@@ -31,11 +32,10 @@ def filter_template_names(search_field, all_names):
     return filtered_names
 
 
-def layout_flex_box_cb(white_list, all_templates):
-    print("cb", white_list, all_templates)
+def layout_flex_box_cb(white_list, all_templates, database):
     return pn.layout.FlexBox(
         *[
-            pn.WidgetBox(config)
+            pn.WidgetBox(TemplateEditorView(config, database))
             for config in all_templates
             if config["name"] in white_list
         ]
@@ -64,6 +64,7 @@ def start_serve() -> pn.panel:
         layout_flex_box_cb,
         white_list=config_white_list,
         all_templates=db.get_all_config_templates(),
+        database=db,
         watch=True,
     )
     # config_white_list = db.get_all_config_template_names()

@@ -74,6 +74,19 @@ class Database:
         """
         return self.db_impl.get_config_template(template_name)
 
+    def set_new_template(self, new_template: dict):
+        """Save a new template to the database.
+
+        Args:
+            new_template (dict): dict containing the new template.
+
+        Raises:
+            KeyError: Template needs at least a 'name' key
+        """
+        if "name" not in new_template:
+            raise KeyError("The key 'name' needs to be in the template.")
+        self.db_impl.set_new_template(new_template)
+
     def get_used_template_of(self, id: int) -> str:
         """Get the currently used template of a specific controller.
 
