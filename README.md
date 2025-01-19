@@ -64,13 +64,13 @@ Install and run the application locally using pip.
 python3.13 -m venv ./venv/
 source venv/bin/activate
 pip install . # or use pip install -e .[dev] for development
-ebb_flow_manager
+panel serve src/ebb_flow_manager/ebb_flow_manager_*
 ```
 
 For development run
 
 ```sh
-panel serve src/ebb_flow_manager/ebb_flow_manager_app.py --dev
+panel serve src/ebb_flow_manager/ebb_flow_manager_* --dev
 ```
 
 ### Docker
