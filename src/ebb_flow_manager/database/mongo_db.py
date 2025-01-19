@@ -83,6 +83,20 @@ class MongoDbImpl:
             return founded_template[0]
         return {}
 
+    def set_new_template(self, new_template: dict):
+        """Save a new template to database.
+
+        Args:
+            new_template (dict): the new template.
+        """
+        self.client[self.config["database_name"]][
+            self.config["collection_config_template_name"]
+        ].replace_one(
+            {"name": new_template["name"]},
+            new_template,
+            upsert=True,
+        )
+
     def get_used_template_of(self, id: int) -> str:
         """Get the currently used template of a specific controller.
 
