@@ -13,6 +13,11 @@ Use the following labels:
 
 ## [UNRELEASED]
 
+### Added
+
+- [Patch] Support for configuration templates
+- [Patch] New page to show amd change templates
+
 ## [0.0.2] - 2024-12-29
 
 ### Fixed
