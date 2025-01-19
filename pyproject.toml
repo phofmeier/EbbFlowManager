@@ -33,9 +33,6 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[project.scripts]
-ebb_flow_manager = "ebb_flow_manager.ebb_flow_manager_app:main"
-
 [tool.setuptools_scm]
 
 [tool.isort]
