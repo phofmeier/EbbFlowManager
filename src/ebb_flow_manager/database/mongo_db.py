@@ -97,6 +97,16 @@ class MongoDbImpl:
             upsert=True,
         )
 
+    def delete_template(self, template_name: str):
+        """Delete a template from the database.
+
+        Args:
+            template_name (str): Name of the template to delete
+        """
+        self.client[self.config["database_name"]][
+            self.config["collection_config_template_name"]
+        ].delete_many({"name": template_name})
+
     def get_used_template_of(self, id: int) -> str:
         """Get the currently used template of a specific controller.
 

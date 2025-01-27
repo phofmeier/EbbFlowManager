@@ -72,7 +72,7 @@ class Database:
         Returns:
             dict: Config template.
         """
-        return self.db_impl.get_config_template(template_name)
+        return self.db_impl.get_config_template(template_name.strip())
 
     def set_new_template(self, new_template: dict):
         """Save a new template to the database.
@@ -85,7 +85,24 @@ class Database:
         """
         if "name" not in new_template:
             raise KeyError("The key 'name' needs to be in the template.")
+        new_template.update({"name": new_template["name"].strip()})
         self.db_impl.set_new_template(new_template)
+
+    def delete_template(self, template_name: str):
+        """Delete a template from the database.
+
+        Args:
+            template_name (str): Name of the template to delete.
+
+        Raises:
+            KeyError: If template does not exist
+        """
+        name = template_name.strip()
+        if name not in self.get_all_config_template_names():
+            raise KeyError(
+                f"The template with the name {name} is not inside the database."
+            )
+        self.db_impl.delete_template(name)
 
     def get_used_template_of(self, id: int) -> str:
         """Get the currently used template of a specific controller.
@@ -105,4 +122,4 @@ class Database:
             id (int): id of the controller
             template_name (str): name of the template used by this controller.
         """
-        self.db_impl.set_used_template_of(id, template_name)
+        self.db_impl.set_used_template_of(id, template_name.strip())
