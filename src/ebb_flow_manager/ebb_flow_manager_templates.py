@@ -1,6 +1,8 @@
+import json
 import logging
 import logging.config
 import re
+from io import StringIO
 
 import panel as pn
 
@@ -130,6 +132,12 @@ def start_serve() -> pn.panel:
         watch=True,
     )
 
+    # Download button
+    sio = StringIO()
+    json.dump(db.get_all_config_templates(), fp=sio)
+    sio.seek(0)
+    export_button = pn.widgets.FileDownload(sio, filename="templates.json")
+
     config_white_list = pn.bind(
         filter_template_names,
         search_field=search_field,
@@ -151,6 +159,7 @@ def start_serve() -> pn.panel:
                 pn.Row(
                     search_field,
                     new_template_button,
+                    export_button,
                 ),
                 layout_flex_box,
             ),
