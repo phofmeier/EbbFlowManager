@@ -17,6 +17,8 @@ Use the following labels:
 
 - [Patch] Support for configuration templates
 - [Patch] New page to show amd change templates
+- [Patch] Create and delete templates
+- [Patch] Export templates as json file
 
 ## [0.0.2] - 2024-12-29
 
