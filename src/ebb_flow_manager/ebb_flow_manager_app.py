@@ -99,6 +99,7 @@ def start_serve() -> pn.panel:
         controller_data=controller_data,
         mqtt=mqtt,
         db=db,
+        watch=True,
     )
     template = pn.template.MaterialTemplate(
         title="Ebb Flow Manager",
