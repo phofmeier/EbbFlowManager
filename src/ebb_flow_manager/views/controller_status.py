@@ -21,6 +21,7 @@ class ControllerStatusView(pn.viewable.Viewer):
             "## Status",
             pn.panel(
                 f"- Connection: {self.status_data.connection} \n"
+                f"- Wifi Strength: {self.status_data.wifi_rssi} \n"
                 f"- Last updated: {self.status_data.last_updated}"
             ),
         )
