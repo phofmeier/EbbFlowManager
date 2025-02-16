@@ -39,6 +39,10 @@ class EbbFlowControllerStatus(param.Parameterized):
         default="",
         doc="The current connection status of the Controller",
     )
+    wifi_rssi = param.Number(
+        default=None,
+        doc="The current wifi signal strength",
+    )
     last_updated = param.Date(doc="Timepoint of last update")
 
     def __init__(self):
@@ -52,6 +56,7 @@ class EbbFlowControllerStatus(param.Parameterized):
             data (dict): new data for update
         """
         self.connection = data["connection"]
+        self.wifi_rssi = data.get("rssi_level", None)
 
         ts_received = data["ts_received"]
         if isinstance(ts_received, str):
