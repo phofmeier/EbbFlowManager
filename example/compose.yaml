@@ -2,11 +2,14 @@ version: "3.8"
 
 services:
   ebbflowmanager:
-    image: ghcr.io/phofmeier/ebbflowmanager:latest
+   # image: ghcr.io/phofmeier/ebbflowmanager:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
       - ./config_manager.yml:/home/app/config.yml
-    command: panel serve src/ebb_flow_manager/ebb_flow_manager_app.py
+    #command: panel serve src/ebb_flow_manager/ebb_flow_manager_app.py
     depends_on:
       - db
       - mosquitto
