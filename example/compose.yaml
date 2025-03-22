@@ -9,7 +9,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./config_manager.yml:/home/app/config.yml
-    #command: panel serve src/ebb_flow_manager/ebb_flow_manager_app.py
     depends_on:
       - db
       - mosquitto
@@ -51,14 +50,14 @@ services:
     restart: unless-stopped
     ports:
       - "1883:1883"
-      # - "9001:9001"
+     # - "9001:9001"
 
     # Add for custom configuration
     #  volumes:
     #    - ./mosquitto:/etc/mosquitto
     #    - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/config:/mosquitto/config
 
 volumes:
   mongodb-data:
