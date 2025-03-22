@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   ebbflowmanager:
-   # image: ghcr.io/phofmeier/ebbflowmanager:latest
+    # image: ghcr.io/phofmeier/ebbflowmanager:latest
     build:
       context: ..
       dockerfile: Dockerfile
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
     ports:
       - "1883:1883"
-     # - "9001:9001"
+      # - "9001:9001"
 
     # Add for custom configuration
     #  volumes:
