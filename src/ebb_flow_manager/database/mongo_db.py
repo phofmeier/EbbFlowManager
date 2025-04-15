@@ -173,3 +173,13 @@ class MongoDbImpl:
 
     def get_all_timed_data_from(self, database: str, collection: str):
         return list(self.client[database][collection].find({}, {}))
+
+    def get_pump_time_data(self) -> list[dict]:
+        """Get all pump time data.
+
+        Returns:
+            list[dict]: List of dicts containing the pump time data.
+        """
+        return self.get_all_timed_data_from(
+            self.config["database_name"], self.config["collection_pump_time_name"]
+        )

@@ -14,7 +14,8 @@ dependencies = [
     "paho-mqtt >= 2.1.0",
     "pymongo[srv] >= 4.8.0",
     "panel >= 1.6.0",
-    "watchfiles >= 1.0.3"
+    "watchfiles >= 1.0.3",
+    "plotly >= 6.0.1",
 ]
 dynamic = ["version"]
 

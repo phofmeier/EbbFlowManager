@@ -123,3 +123,11 @@ class Database:
             template_name (str): name of the template used by this controller.
         """
         self.db_impl.set_used_template_of(id, template_name.strip())
+
+    def get_pump_time_data(self) -> list[dict]:
+        """Get all pump time data.
+
+        Returns:
+            list[dict]: List of dicts containing the pump time data.
+        """
+        return self.db_impl.get_pump_time_data()
