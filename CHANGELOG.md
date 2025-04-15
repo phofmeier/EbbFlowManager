@@ -20,6 +20,10 @@ Use the following labels:
 - [Patch] Create and delete templates
 - [Patch] Export templates as json file
 
+### Changed
+
+- [Patch] Changed example config to correctly save timed messages
+
 ## [0.0.2] - 2024-12-29
 
 ### Fixed
