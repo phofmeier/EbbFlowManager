@@ -1,22 +1,11 @@
 [
-    {
-        "name": "Salad",
-        "pump_cycles": {
-            "nr_pump_cycles": 12,
-            "times_minutes_per_day": [
-                360,
-                540,
-                660,
-                780,
-                840,
-                900,
-                960,
-                1020,
-                1080,
-                1140,
-                1260,
-                1380
-            ]
-        }
+  {
+    "name": "Salad",
+    "pump_cycles": {
+      "nr_pump_cycles": 12,
+      "times_minutes_per_day": [
+        360, 540, 660, 780, 840, 900, 960, 1020, 1080, 1140, 1260, 1380
+      ]
     }
+  }
 ]
