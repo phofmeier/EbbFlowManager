@@ -1,0 +1,36 @@
+database:
+  collection_config_name: config_static
+  collection_config_template_name: config_template
+  collection_pump_time_name: pump_timed
+  collection_status_name: status_static
+  collection_used_template_name: used_template
+  connection_string: db:27017
+  database_name: efc
+  id_field_name: id
+logging:
+  disable_existing_loggers: false
+  formatters:
+    f:
+      format: '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+  handlers:
+    file:
+      backupCount: 14
+      class: logging.handlers.TimedRotatingFileHandler
+      filename: ./logs/manager.log
+      formatter: f
+      level: 20
+      when: D
+    h:
+      class: logging.StreamHandler
+      formatter: f
+      level: 20
+  root:
+    handlers:
+    - h
+    - file
+    level: 20
+  version: 1
+mqtt:
+  broker: mosquitto
+  new_config_publish_topic: ef/efc/config/set
+  port: 1883

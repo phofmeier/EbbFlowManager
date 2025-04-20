@@ -1,0 +1,36 @@
+database:
+  connection_string: db:27017
+  static:
+    add_received_timestamp: true
+    id_field_name: id
+    received_timestamp_name: ts_received
+  timed:
+    meta_field_name: id
+    time_field_name: ts
+logging:
+  disable_existing_loggers: false
+  formatters:
+    f:
+      format: '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+  handlers:
+    file:
+      backupCount: 14
+      class: logging.handlers.TimedRotatingFileHandler
+      filename: ./logs/mqtt2db.log
+      formatter: f
+      level: 20
+      when: D
+    h:
+      class: logging.StreamHandler
+      formatter: f
+      level: 10
+  root:
+    handlers:
+    - h
+    - file
+    level: 10
+  version: 1
+mqtt:
+  broker: mosquitto
+  channel_prefix: ef
+  port: 1883
