@@ -1,5 +1,5 @@
 import panel as pn
-import plotly.graph_objs as go
+import plotly.express as px
 
 from ebb_flow_manager.config import Config
 from ebb_flow_manager.database.database import Database
@@ -21,22 +21,18 @@ def start_serve() -> pn.panel:
     logger.debug("start app")
     db = Database(config.get("database"))
 
-    print(db.get_pump_time_data())
     data = db.get_pump_time_data()
-    sorted_data = sorted(data, key=lambda x: x["ts"])
-    timestamps = [data["ts"] for data in sorted_data]
-    values = [data["status"] for data in sorted_data]
+    data.sort_values("ts", inplace=True)
 
-    figure = go.Figure()
-    figure.add_trace(
-        go.Scatter(
-            x=timestamps,
-            y=values,
-            mode="lines+markers",
-            line={"shape": "hv"},
-            name="Pump Status",
-        )
+    figure = px.line(
+        data_frame=data,
+        x="ts",
+        y="status",
+        color="id",
+        markers=True,
+        line_shape="hv",
     )
+
     figure.update_layout(
         title="Pump Status Over Time",
         xaxis_title="Timestamp",
@@ -46,7 +42,7 @@ def start_serve() -> pn.panel:
     )
     figure.update_layout(
         autosize=True,
-        margin=dict(l=20, r=20, t=20, b=20),
+        margin=dict(l=20, r=20, t=40, b=20),
         height=400,
         width=600,
     )
