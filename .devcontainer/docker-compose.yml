@@ -35,4 +35,4 @@ services:
     network_mode: service:db
 
 volumes:
-  mongodb-data-dev:
+  mongodb-data:
