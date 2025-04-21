@@ -18,18 +18,18 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
     depends_on:
-      - db-dev
-      - mosquitto-dev
+      - db
+      - mosquitto
 
   # Database
-  db-dev:
+  db:
     image: mongo:latest
     restart: unless-stopped
     volumes:
-      - mongodb-data-dev:/data/db
+      - mongodb-data:/data/db
 
   # MQTT brocker
-  mosquitto-dev:
+  mosquitto:
     image: eclipse-mosquitto:latest
     restart: unless-stopped
     network_mode: service:db
