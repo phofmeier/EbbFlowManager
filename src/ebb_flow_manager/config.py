@@ -20,6 +20,7 @@ class Config:
                 "collection_config_name": "config_static",
                 "collection_config_template_name": "config_template",
                 "collection_used_template_name": "used_template",
+                "collection_pump_time_name": "pump_timed",
                 "id_field_name": "id",
             },
             "logging": {
