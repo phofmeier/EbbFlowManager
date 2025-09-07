@@ -1,3 +1,5 @@
+import pandas as pd
+
 from ebb_flow_manager.database.ebb_flow_controller_data import EbbFlowControllerData
 from ebb_flow_manager.database.mongo_db import MongoDbImpl
 
@@ -123,3 +125,11 @@ class Database:
             template_name (str): name of the template used by this controller.
         """
         self.db_impl.set_used_template_of(id, template_name.strip())
+
+    def get_pump_time_data(self) -> pd.DataFrame:
+        """Get all pump time data.
+
+        Returns:
+            pd.DataFrame: Pandas dataframe containing the pump time data.
+        """
+        return self.db_impl.get_pump_time_data()

@@ -1,6 +1,11 @@
 import logging
 
+import pandas as pd
+import pymongoarrow
+import pymongoarrow.monkey
 from pymongo import MongoClient
+
+pymongoarrow.monkey.patch_all()
 
 
 class MongoDbImpl:
@@ -173,3 +178,27 @@ class MongoDbImpl:
 
     def get_all_timed_data_from(self, database: str, collection: str):
         return list(self.client[database][collection].find({}, {}))
+
+    def get_all_timed_data_as_dataframe(
+        self, database: str, collection: str
+    ) -> pd.DataFrame:
+        """Get a pandas dataframe with all data.
+
+        Args:
+            database (str): name of the database.
+            collection (str): name of the collection.
+
+        Returns:
+            pd.DataFrame: Dataframe containing the data.
+        """
+        return self.client[database][collection].find_pandas_all({})
+
+    def get_pump_time_data(self) -> pd.DataFrame:
+        """Get all pump time data.
+
+        Returns:
+           pd.DataFrame: List of dicts containing the pump time data.
+        """
+        return self.get_all_timed_data_as_dataframe(
+            self.config["database_name"], self.config["collection_pump_time_name"]
+        )
