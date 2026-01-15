@@ -15,23 +15,25 @@ Use the following labels:
 
 ### Added
 
-- [Patch] Support for configuration templates
-- [Patch] New page to show and change templates
-- [Patch] Create and delete templates
-- [Patch] Export templates as json file
+- [Patch] Added new Data Viewer page.
+- [Patch] Support for configuration templates.
+- [Patch] New page to show and change templates.
+- [Patch] Create and delete templates.
+- [Patch] Export templates as json file.
 
 ### Changed
 
-- [Patch] Changed example config to correctly save timed messages
+- [Patch] Changed example to write logs to files.
+- [Patch] Changed example config to correctly save timed messages.
 
 ## [0.0.2] - 2024-12-29
 
 ### Fixed
 
-- [Patch] Fixed Example
+- [Patch] Fixed Example.
 
 ## [0.0.1] - 2024-12-27
 
 ### Added
 
-- [Patch] First Version
+- [Patch] First Version.

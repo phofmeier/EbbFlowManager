@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -35,6 +36,22 @@ for json_file in get_all_files():
                 {id_filed_name: data[id_filed_name]},
                 data,
                 upsert=True,
+            )
+    elif type_name == "timed":
+        if collection not in client[database].list_collection_names():
+            # Insert new collection
+            client[database].create_collection(
+                collection,
+                timeseries={
+                    "timeField": "ts",
+                    "metaField": "id",
+                },
+            )
+        for data in all_data:
+            datetime_ts = datetime.datetime.fromisoformat(data["ts"])
+            data["ts"] = datetime_ts
+            client[database][collection].insert_one(
+                data,
             )
     else:
         for data in all_data:

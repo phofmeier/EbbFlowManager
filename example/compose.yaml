@@ -8,7 +8,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - ./config_manager.yml:/home/app/config.yml
+      - ./manager/config/config.yml:/home/app/config.yml
+      - ./manager/logs:/home/app/logs
     depends_on:
       - db
       - mosquitto
@@ -20,7 +21,8 @@ services:
     restart: unless-stopped
     # Custom Configuration
     volumes:
-      - ./config_mqtt2db.yml:/home/app/config.yml
+      - ./mqtt2db/config/config.yml:/home/app/config.yml
+      - ./mqtt2db/logs:/home/app/logs
 
     depends_on:
       - db
@@ -58,6 +60,8 @@ services:
     #    - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     volumes:
       - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
 
 volumes:
   mongodb-data:
