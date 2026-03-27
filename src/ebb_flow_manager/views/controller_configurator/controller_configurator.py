@@ -1,3 +1,4 @@
+from ebb_flow_manager.views.controller_configurator.light_config import LightConfig
 import panel as pn
 import param
 
@@ -39,6 +40,7 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
         # Configuration for the nutrition pump
         self.current_template_selection = self.db.get_used_template_of(self.id)
         self.nutrition_pump_config = NutritionPumpConfig(self.config_data.pump_cycles)
+        self.light_config = LightConfig(self.config_data.light)
         self.selected_template = "None"
 
     def set_new_config(self, _):
@@ -47,6 +49,7 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
             {
                 "id": self.id,
                 "pump_cycles": self.nutrition_pump_config.get_new_config(),
+                "light": self.light_config.get_new_config(),
             }
         )
 
@@ -101,5 +104,6 @@ class ControllerConfiguratorView(pn.viewable.Viewer):
                 ncols=2,
             ),
             self.nutrition_pump_config,
+            self.light_config,
             new_conf_button,
         )
