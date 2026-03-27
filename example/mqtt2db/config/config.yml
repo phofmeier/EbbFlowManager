@@ -11,14 +11,14 @@ logging:
   disable_existing_loggers: false
   formatters:
     f:
-      format: "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+      format: '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
   handlers:
     file:
       backupCount: 14
       class: logging.handlers.TimedRotatingFileHandler
       filename: ./logs/mqtt2db.log
       formatter: f
-      level: 20
+      level: 10
       when: D
     h:
       class: logging.StreamHandler
@@ -26,8 +26,8 @@ logging:
       level: 10
   root:
     handlers:
-      - h
-      - file
+    - h
+    - file
     level: 10
   version: 1
 mqtt:

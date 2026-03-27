@@ -21,6 +21,8 @@ class Config:
                 "collection_config_template_name": "config_template",
                 "collection_used_template_name": "used_template",
                 "collection_pump_time_name": "pump_timed",
+                "collection_heap_size_name": "heap_timed",
+                "collection_light_intensity_name": "light_timed",
                 "id_field_name": "id",
             },
             "logging": {

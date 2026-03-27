@@ -45,6 +45,11 @@ class EbbFlowControllerStatus(param.Parameterized):
     )
     last_updated = param.Date(doc="Timepoint of last update")
 
+    software_version = param.String(
+        default="",
+        doc="The current software version of the controller",
+    )
+
     def __init__(self):
         """Initialize empty status."""
         super().__init__()
@@ -57,7 +62,7 @@ class EbbFlowControllerStatus(param.Parameterized):
         """
         self.connection = data["connection"]
         self.wifi_rssi = data.get("rssi_level", None)
-
+        self.software_version = data.get("version", "")
         ts_received = data["ts_received"]
         if isinstance(ts_received, str):
             ts_received = parser.parse(ts_received)
@@ -67,7 +72,9 @@ class EbbFlowControllerStatus(param.Parameterized):
         if isinstance(other, EbbFlowControllerStatus):
             return (
                 self.connection == other.connection
-                and self.last_updated == other.last_updated
+                and self.last_updated == other.last_updated and
+                self.wifi_rssi == other.wifi_rssi and
+                self.software_version == other.software_version
             )
         return False
 
@@ -76,6 +83,7 @@ class EbbFlowControllerConfig(param.Parameterized):
     """Configuration data of the controller."""
 
     pump_cycles = param.Dict()
+    light = param.Dict()
     last_updated = param.Date(doc="Timepoint of last update")
 
     def __init__(self):
@@ -89,6 +97,7 @@ class EbbFlowControllerConfig(param.Parameterized):
             data (dict): new data for update.
         """
         self.pump_cycles = data["pump_cycles"]
+        self.light = data.get("light", {})
         ts_received = data["ts_received"]
         if isinstance(ts_received, str):
             ts_received = parser.parse(ts_received)
@@ -99,5 +108,6 @@ class EbbFlowControllerConfig(param.Parameterized):
             return (
                 self.pump_cycles == other.pump_cycles
                 and self.last_updated == other.last_updated
+                and self.light == other.light
             )
         return False

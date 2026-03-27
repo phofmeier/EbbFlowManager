@@ -133,3 +133,19 @@ class Database:
             pd.DataFrame: Pandas dataframe containing the pump time data.
         """
         return self.db_impl.get_pump_time_data()
+    
+    def get_heap_size_data(self) -> pd.DataFrame:
+        """Get all heap size data.
+
+        Returns:
+            pd.DataFrame: Pandas dataframe containing the heap size data.
+        """
+        return self.db_impl.get_heap_size_data()
+
+    def get_light_intensity_data(self) -> pd.DataFrame:
+        """Get all light intensity data.
+
+        Returns:
+            pd.DataFrame: Pandas dataframe containing the light intensity data.
+        """
+        return self.db_impl.get_light_intensity_data()

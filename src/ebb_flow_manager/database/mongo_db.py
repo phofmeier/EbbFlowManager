@@ -202,3 +202,23 @@ class MongoDbImpl:
         return self.get_all_timed_data_as_dataframe(
             self.config["database_name"], self.config["collection_pump_time_name"]
         )
+    
+    def get_heap_size_data(self) -> pd.DataFrame:
+        """Get all heap size data.
+
+        Returns:
+           pd.DataFrame: List of dicts containing the heap size data.
+        """
+        return self.get_all_timed_data_as_dataframe(
+            self.config["database_name"], self.config["collection_heap_size_name"]
+        )
+
+    def get_light_intensity_data(self) -> pd.DataFrame:
+        """Get all light intensity data.
+
+        Returns:
+           pd.DataFrame: List of dicts containing the light intensity data.
+        """
+        return self.get_all_timed_data_as_dataframe(
+            self.config["database_name"], self.config["collection_light_intensity_name"]
+        )
