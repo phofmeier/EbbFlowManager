@@ -34,7 +34,7 @@ repos:
           - tomli
         args: [--toml, pyproject.toml]
   - repo: https://github.com/pycqa/isort
-    rev: 10.0.0b2
+    rev: 10.0.0b3
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/mirrors-mypy
