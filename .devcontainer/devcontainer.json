@@ -18,7 +18,8 @@
         "streetsidesoftware.code-spell-checker",
         "njpwerner.autodocstring",
         "ms-python.python",
-        "ms-python.black-formatter"
+        "ms-python.black-formatter",
+        "Vue.volar"
       ]
     }
   },

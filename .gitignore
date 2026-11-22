@@ -163,3 +163,4 @@ cython_debug/
 /config.yml
 example/manager/logs/
 example/mqtt2db/logs/
+frontend/node_modules/

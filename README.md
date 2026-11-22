@@ -68,18 +68,14 @@ To start the new backend and frontend design, follow these steps:
 1. **Backend**:
 
    ```sh
-   cd backend
-   python3.13 -m venv ./venv/
-   source venv/bin/activate
-   pip install .
-   uvicorn src.main:app --reload
+   uv run uvicorn src.ebb_flow_manager.app:app --reload --host 0.0.0.0 --port 8001
    ```
 
 2. **Frontend**:
    ```sh
    cd frontend
    npm install
-   npm start
+   npm run dev -- --host 0.0.0.0
    ```
 
 ### Local installation

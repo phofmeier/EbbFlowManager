@@ -19,6 +19,8 @@ dependencies = [
     "pymongoarrow >=1.7.1",
     "pandas >= 2.2.3",
     "uv >= 0.1.0",
+    "fastapi>=0.165.0",
+    "uvicorn>=0.54.0",
 ]
 dynamic = ["version"]
 
@@ -31,6 +33,7 @@ dev = [
     "codespell>=2.3.0",
     "pre-commit>=3.7.1",
     "coverage",
+    "uvicorn[standard]>=0.54.0",
 ]
 # , "mkdocs>=1.2.3", "mkdocstrings[python-legacy]>=0.18.0", "mkdocs-material>=8.1.9", "mkdocs-bibtex>=2.0.1", "matplotlib>=3.6.2"
 
@@ -79,3 +82,4 @@ ignore = ["I100", "I201", "E203", "W503"]
 
 [tool.codespell]
 quiet-level = 3
+skip = "frontend/package-lock.json"
