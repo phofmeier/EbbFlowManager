@@ -5,6 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_OPENCODE: false
+        OPENCODE_VERSION: 2.0.22
+
     volumes:
       - ../..:/workspaces:cached
 

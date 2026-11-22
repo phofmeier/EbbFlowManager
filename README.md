@@ -56,6 +56,34 @@ For more in detail explanation of the configuration see the documentation of the
 
 ## Deployment
 
+### Backend and Frontend Design
+
+The new backend and frontend design is implemented using the following technologies:
+
+- **Backend**: Python with FastAPI
+- **Frontend**: React with TypeScript
+
+To start the new backend and frontend design, follow these steps:
+
+1. **Backend**:
+
+   ```sh
+   cd backend
+   python3.13 -m venv ./venv/
+   source venv/bin/activate
+   pip install .
+   uvicorn src.main:app --reload
+   ```
+
+2. **Frontend**:
+   ```sh
+   cd frontend
+   npm install
+   npm start
+   ```
+
+### Local installation
+
 ### Local installation
 
 Install and run the application locally using pip.
@@ -67,18 +95,24 @@ pip install . # or use pip install -e .[dev] for development
 panel serve src/ebb_flow_manager/ebb_flow_manager_*
 ```
 
-For development run
+For development run using `uv`:
 
 ```sh
-panel serve src/ebb_flow_manager/ebb_flow_manager_* --dev
+uv run panel serve src/ebb_flow_manager/ebb_flow_manager_* --dev
 ```
 
 ### Docker
 
 Checkout the example for using this app with docker compose [here](example/README.md).
 
-Or only run the app in a container with the following command.
+Or run the app in a container using uv:
 
 ```sh
-docker run -d -v ./config.yml:/home/app/config.yml ghcr.io/phofmeier/ebbflowmanager:latest
+uv run docker run -d -v ./config.yml:/home/app/config.yml ghcr.io/phofmeier/ebbflowmanager:latest
+```
+
+Or run the app locally using uv:
+
+```sh
+uv run python -m ebb_flow_manager.ebb_flow_manager_app --dev
 ```
