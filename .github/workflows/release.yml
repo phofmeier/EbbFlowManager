@@ -2,65 +2,136 @@ name: Create Release
 
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*"
+
+concurrency:
+  group: ebbflowmanager-release
+  queue: max
 
 jobs:
   create_release:
-    name: Create Release
+    name: Build images and publish release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/ebbflowmanager
+    outputs:
+      version: ${{ steps.changelog_reader.outputs.version }}
+      release_date: ${{ steps.changelog_reader.outputs.date }}
+      release_status: ${{ steps.changelog_reader.outputs.status }}
     steps:
-      - name: Get version from tag
-        id: tag_name
-        run: |
-          echo "current_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare changelog from the tagged commit
+        id: changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Get Changelog Entry
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Tag a release commit from main."
+            exit 1
+          fi
+          version="${GITHUB_REF_NAME#v}"
+          release_date="$(date -u +%F)"
+          prepared_path="$RUNNER_TEMP/release-changelog.md"
+          previous_stable="$(gh release list --exclude-drafts --exclude-pre-releases \
+            --limit 1 --json tagName --jq '.[0].tagName // empty')"
+          python3 tools/release_changelog.py prepare "$version" "$release_date" \
+            CHANGELOG.md "$prepared_path" --previous-stable "$previous_stable"
+          printf 'version=%s\npath=%s\n' "$version" "$prepared_path" >> "$GITHUB_OUTPUT"
+      - name: Validate changelog and read release notes
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
-          validation_level: warn
-          version: ${{ steps.tag_name.outputs.current_version }}
-          path: ./CHANGELOG.md
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
+          validation_level: error
+          version: ${{ steps.changelog.outputs.version }}
+          path: ${{ steps.changelog.outputs.path }}
+      - name: Build FastAPI image
+        uses: docker/build-push-action@v6
         with:
-          tag_name: ${{ steps.changelog_reader.outputs.version }}
-          name: Release ${{ steps.changelog_reader.outputs.version }}
-          body: ${{ steps.changelog_reader.outputs.changes }}
-          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
-          draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-  build_and_push_docker:
-    name: Build and Publish Docker Image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          context: .
+          target: api
+          load: true
+          tags: ${{ env.IMAGE }}:${{ steps.changelog_reader.outputs.version }}
+      - name: Build Vue image
+        uses: docker/build-push-action@v6
         with:
-          fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Get version from tag
-        id: tag_name
-        run: |
-          echo "current_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        shell: bash
+          context: .
+          target: frontend
+          load: true
+          tags: ${{ env.IMAGE }}:${{ steps.changelog_reader.outputs.version }}-frontend
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Push versioned images
+        env:
+          VERSION: ${{ steps.changelog_reader.outputs.version }}
+        shell: bash
+        run: |
+          docker push "$IMAGE:$VERSION"
+          docker push "$IMAGE:$VERSION-frontend"
+      - name: Promote stable image tags
+        if: steps.changelog_reader.outputs.status == 'released'
+        env:
+          VERSION: ${{ steps.changelog_reader.outputs.version }}
+        shell: bash
+        run: |
+          docker tag "$IMAGE:$VERSION" "$IMAGE:latest"
+          docker tag "$IMAGE:$VERSION-frontend" "$IMAGE:latest-frontend"
+          docker push "$IMAGE:latest"
+          docker push "$IMAGE:latest-frontend"
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
         with:
-          context: .
-          push: true
-          tags: "ghcr.io/${{ github.repository_owner }}/ebbflowmanager:${{ steps.tag_name.outputs.current_version }},ghcr.io/${{ github.repository_owner }}/ebbflowmanager:latest"
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.changelog_reader.outputs.version }}
+          body_path: ${{ steps.changelog_reader.outputs.changes_file }}
+          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+          draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  update_changelog:
+    name: Open changelog pull request
+    needs: create_release
+    if: needs.create_release.outputs.release_status == 'released'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      VERSION: ${{ needs.create_release.outputs.version }}
+      RELEASE_DATE: ${{ needs.create_release.outputs.release_date }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Move the published entries into release history
+        shell: bash
+        run: |
+          tagged_path="$RUNNER_TEMP/tagged-changelog.md"
+          git show "refs/tags/$GITHUB_REF_NAME:CHANGELOG.md" > "$tagged_path"
+          python3 tools/release_changelog.py rollover "$VERSION" "$RELEASE_DATE" \
+            "$tagged_path" CHANGELOG.md
+      - name: Open or update the changelog pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: main
+          branch: update/changelog-${{ github.ref_name }}
+          add-paths: CHANGELOG.md
+          delete-branch: true
+          commit-message: "chore: record release ${{ env.VERSION }} in changelog"
+          title: Record release ${{ env.VERSION }} in changelog
+          body: |
+            Moves the notes published for `${{ github.ref_name }}` into release history.
+            Entries added after the release tag stay under `[UNRELEASED]`.

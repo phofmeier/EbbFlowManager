@@ -1,11 +1,12 @@
 database:
   collection_config_name: config_static
-  collection_config_template_name: config_template
+  collection_crop_profiles_name: crop_profiles
+  collection_grow_light_installations_name: grow_light_installations
+  collection_grow_lights_name: grow_lights
+  collection_grow_selections_name: grow_selections
   collection_heap_size_name: heap_timed
-  collection_light_intensity_name: light_timed
-  collection_pump_time_name: pump_timed
+  collection_level_name: level_timed
   collection_status_name: status_static
-  collection_used_template_name: used_template
   connection_string: db:27017
   database_name: efc
   id_field_name: id
@@ -13,7 +14,7 @@ logging:
   disable_existing_loggers: false
   formatters:
     f:
-      format: '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+      format: "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
   handlers:
     file:
       backupCount: 14
@@ -28,8 +29,8 @@ logging:
       level: 20
   root:
     handlers:
-    - h
-    - file
+      - h
+      - file
     level: 20
   version: 1
 mqtt:

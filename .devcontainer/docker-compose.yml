@@ -1,42 +1,81 @@
-version: "3.8"
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        INSTALL_OPENCODE: false
+        INSTALL_OPENCODE: "false"
         OPENCODE_VERSION: 2.0.22
-
-    volumes:
-      - ../..:/workspaces:cached
-
-    # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
+    volumes:
+      - ..:/workspace:cached
+      - api-venv:/workspace/.venv
+      - frontend-modules:/workspace/frontend/node_modules
     depends_on:
-      - db
-      - mosquitto
+      db:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+      mqtt2db:
+        condition: service_started
 
-  # Database
   db:
     image: mongo:latest
     restart: unless-stopped
     volumes:
       - mongodb-data:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "quit(db.adminCommand({ping: 1}).ok === 1 ? 0 : 1)"
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
-  # MQTT brocker
   mosquitto:
     image: eclipse-mosquitto:latest
     restart: unless-stopped
-    network_mode: service:db
+    volumes:
+      - ../example/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test:
+        - CMD
+        - mosquitto_pub
+        - -h
+        - 127.0.0.1
+        - -t
+        - compose/health
+        - -n
+        - -q
+        - "1"
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  mqtt2db:
+    image: ghcr.io/phofmeier/mqtt2db:latest
+    platform: linux/amd64
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        cp /tmp/mqtt2db-config.yml config.yml
+        exec mqtt2db
+    volumes:
+      - ../example/mqtt2db/config/config.yml:/tmp/mqtt2db-config.yml:ro
+      - mqtt2db-logs:/home/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
 
 volumes:
+  api-venv:
+  frontend-modules:
   mongodb-data:
+  mqtt2db-logs:

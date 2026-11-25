@@ -1,12 +1,12 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node-mongo
 {
-  "name": "Python with Stuff",
+  "name": "EbbFlowManager",
   "updateRemoteUserUID": true,
   "remoteUser": "vscode",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspace",
   // Configure tool-specific properties.
   "customizations": {
     // Configure properties specific to VS Code.
@@ -23,28 +23,13 @@
       ]
     }
   },
-  "mounts": [
-    {
-      "source": "${localEnv:HOME}/.config/opencode",
-      "target": "/home/vscode/.config/opencode",
-      "type": "bind"
-    },
-    {
-      "source": "${localEnv:HOME}/.local/share/opencode",
-      "target": "/home/vscode/.local/share/opencode",
-      "type": "bind"
-    }
-  ],
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true
     }
   },
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [3000, 1883, 27017],
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "uv sync --extra dev &&  uv run pre-commit install --install-hooks && uv run tools/publish_test_data.py"
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
+  "forwardPorts": [5173, 8001],
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "waitFor": "postCreateCommand"
 }

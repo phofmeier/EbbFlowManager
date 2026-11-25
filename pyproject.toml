@@ -3,23 +3,19 @@ build-backend = 'setuptools.build_meta'
 requires = ["setuptools>=75", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [project]
-name = "ebb_flow_manager"
+name = "ebb-flow-manager-api"
 authors = [{ name = "Peter Hofmeier", email = "phofmeier@googlemail.com" }]
-description = "Application to manage multiple Ebb Flow Controller"
+description = "FastAPI backend for Ebb Flow Manager"
 readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "MIT" }
 
 dependencies = [
-    "paho-mqtt >= 2.1.0",
-    "pymongo[srv] >= 4.8.0",
-    "panel >= 1.6.0",
-    "watchfiles >= 1.0.3",
-    "plotly >= 6.0.1",
-    "pymongoarrow >=1.7.1",
-    "pandas >= 2.2.3",
-    "uv >= 0.1.0",
     "fastapi>=0.165.0",
+    "paho-mqtt>=2.1.0",
+    "pydantic>=2",
+    "pymongo>=4.8.0",
+    "pyyaml>=6.0.4",
     "uvicorn>=0.54.0",
 ]
 dynamic = ["version"]
@@ -33,6 +29,7 @@ dev = [
     "codespell>=2.3.0",
     "pre-commit>=3.7.1",
     "coverage",
+    "httpx2",
     "uvicorn[standard]>=0.54.0",
 ]
 # , "mkdocs>=1.2.3", "mkdocstrings[python-legacy]>=0.18.0", "mkdocs-material>=8.1.9", "mkdocs-bibtex>=2.0.1", "matplotlib>=3.6.2"
@@ -40,16 +37,19 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+ebb_flow_manager_api = ["data/crops/*.json", "data/grow_lights/*.json"]
+
 [tool.setuptools_scm]
 
 [tool.isort]
 profile = "black"
-src_paths = ["src", "tests", "examples", "tools"]
+src_paths = ["src", "tests"]
 line_length = 88
 
 [tool.mypy]
 ignore_missing_imports = true
-files = "src,examples,tests,tools"
+files = ["src", "tests"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

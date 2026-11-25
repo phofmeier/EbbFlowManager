@@ -1,6 +1,9 @@
 import logging
+
 import panel as pn
 import plotly.express as px
+from pandas import DataFrame
+from plotly.graph_objects import Figure
 
 from ebb_flow_manager.config import Config
 from ebb_flow_manager.database.database import Database
@@ -10,20 +13,32 @@ pn.extension(design="material")
 
 pn.extension("plotly")
 
-def plot_free_store_data(db: Database) -> px.line:
-    data = db.get_heap_size_data()
-    
-    data.sort_values("ts", inplace=True)
 
-    figure = px.line(
-        data_frame=data,
+def _telemetry_line(data: DataFrame, field: str) -> Figure:
+    if data.empty or not {"ts", "id", field}.issubset(data.columns):
+        figure = Figure()
+        figure.add_annotation(
+            text="No telemetry available",
+            x=0.5,
+            y=0.5,
+            xref="paper",
+            yref="paper",
+            showarrow=False,
+        )
+        return figure
+
+    return px.line(
+        data_frame=data.sort_values("ts"),
         x="ts",
-        y="store_used_bytes",
+        y=field,
         color="id",
         markers=True,
         line_shape="hv",
     )
 
+
+def plot_free_store_data(db: Database) -> Figure:
+    figure = _telemetry_line(db.get_heap_size_data(), "store_used_bytes")
 
     figure.update_layout(
         title="Used bytes of store over Time",
@@ -40,21 +55,11 @@ def plot_free_store_data(db: Database) -> px.line:
     )
     return figure
 
-def plot_min_heap_size_data(db: Database) -> px.line:
+def plot_min_heap_size_data(db: Database) -> Figure:
     data = db.get_heap_size_data()
     logger = logging.getLogger(__name__)
     logger.warning(f"Heap size data: {data}")
-    data.sort_values("ts", inplace=True)
-
-    figure = px.line(
-        data_frame=data,
-        x="ts",
-        y="min_free_heap_size",
-        color="id",
-        markers=True,
-        line_shape="hv",
-    )
-
+    figure = _telemetry_line(data, "min_free_heap_size")
 
     figure.update_layout(
         title="Min Free Heap Over Time",
@@ -71,21 +76,11 @@ def plot_min_heap_size_data(db: Database) -> px.line:
     )
     return figure
 
-def plot_heap_size_data(db: Database) -> px.line:
+def plot_heap_size_data(db: Database) -> Figure:
     data = db.get_heap_size_data()
     logger = logging.getLogger(__name__)
     logger.warning(f"Heap size data: {data}")
-    data.sort_values("ts", inplace=True)
-
-    figure = px.line(
-        data_frame=data,
-        x="ts",
-        y="free_heap_size",
-        color="id",
-        markers=True,
-        line_shape="hv",
-    )
-
+    figure = _telemetry_line(data, "free_heap_size")
 
     figure.update_layout(
         title="Free Heap Over Time",
@@ -102,18 +97,8 @@ def plot_heap_size_data(db: Database) -> px.line:
     )
     return figure
 
-def plot_pump_time_data(db: Database) -> px.line:
-    data = db.get_pump_time_data()
-    data.sort_values("ts", inplace=True)
-
-    figure = px.line(
-        data_frame=data,
-        x="ts",
-        y="status",
-        color="id",
-        markers=True,
-        line_shape="hv",
-    )
+def plot_pump_time_data(db: Database) -> Figure:
+    figure = _telemetry_line(db.get_pump_time_data(), "status")
 
     figure.update_layout(
         title="Pump Status Over Time",
@@ -132,18 +117,8 @@ def plot_pump_time_data(db: Database) -> px.line:
 
 
 # New plot for light intensity over time
-def plot_light_intensity_data(db: Database) -> px.line:
-    data = db.get_light_intensity_data()
-    data.sort_values("ts", inplace=True)
-
-    figure = px.line(
-        data_frame=data,
-        x="ts",
-        y="intensity",
-        color="id",
-        markers=True,
-        line_shape="hv",
-    )
+def plot_light_intensity_data(db: Database) -> Figure:
+    figure = _telemetry_line(db.get_light_intensity_data(), "intensity")
 
     figure.update_layout(
         title="Light Intensity Over Time",

@@ -1,0 +1,71 @@
+{
+  "name": "Kohlrabi",
+  "phases": {
+    "seedling": {
+      "name": "Seedling",
+      "targets": {
+        "ph": {
+          "min": 5.5,
+          "max": 6
+        },
+        "ec_ms_cm": {
+          "min": 0.75,
+          "max": 0.75
+        },
+        "reservoir_temperature_c": {
+          "min": 20,
+          "max": 22
+        },
+        "air_temperature_c": {
+          "min": 18,
+          "max": 21
+        },
+        "relative_humidity_pct": {
+          "min": 55,
+          "max": 65
+        },
+        "ppfd_umol_m2_s": {
+          "min": 165,
+          "max": 200
+        },
+        "dli_mol_m2_day": {
+          "min": 9.5,
+          "max": 11.5
+        }
+      }
+    },
+    "production": {
+      "name": "Production",
+      "targets": {
+        "ph": {
+          "min": 5.5,
+          "max": 6.5
+        },
+        "ec_ms_cm": {
+          "min": 1.3,
+          "max": 1.3
+        },
+        "reservoir_temperature_c": {
+          "min": 20,
+          "max": 22
+        },
+        "air_temperature_c": {
+          "min": 14,
+          "max": 20
+        },
+        "relative_humidity_pct": {
+          "min": 50,
+          "max": 70
+        },
+        "ppfd_umol_m2_s": {
+          "min": 240,
+          "max": 260
+        },
+        "dli_mol_m2_day": {
+          "min": 13.8,
+          "max": 15
+        }
+      }
+    }
+  }
+}

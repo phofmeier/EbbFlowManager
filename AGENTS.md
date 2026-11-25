@@ -1,94 +1,45 @@
 # EbbFlowManager Agent Instructions
 
+## Project layout
+
+- The Python 3.13 FastAPI project is at the repository root. API routes are in [`src/ebb_flow_manager_api/app.py`](src/ebb_flow_manager_api/app.py), and MongoDB reads and MQTT writes are in [`live.py`](src/ebb_flow_manager_api/live.py). API tests are in [`tests/`](tests/).
+- The Vue 3 frontend is in [`frontend/`](frontend/). [`App.vue`](frontend/src/App.vue) handles controller selection, [`ControllerDashboard.vue`](frontend/src/ControllerDashboard.vue) renders the dashboard, and [`ScheduleSettings.vue`](frontend/src/ScheduleSettings.vue) handles schedule editing.
+- [`legacy/panel/`](legacy/panel/README.md) contains the archived Panel app and instructions for manual use.
+- Bundled crop and light catalogs live under [`src/ebb_flow_manager_api/data/`](src/ebb_flow_manager_api/data/). Dev container controller fixtures live in [`tools/test_data/`](tools/test_data/).
+
 ## Development
 
-### Setup and Installation
+Run these commands from the repository root to install the locked dependencies. The dev container uses Node.js 24.
 
-- Install dependencies using a Python virtual environment:
-  ```sh
-  python3.13 -m venv ./venv/
-  source venv/bin/activate
-  pip install .
-  ```
-  Use `pip install -e .[dev]` for development dependencies.
+```sh
+uv sync --locked --extra dev
+npm --prefix frontend ci
+```
 
-### Running the Application
+Start FastAPI and Vite in separate terminals.
 
-- Start the application using `uv` and `panel`:
-  ```sh
-  uv run panel serve src/ebb_flow_manager/ebb_flow_manager_* --dev
-  ```
-  Access the app at `http://localhost:5006/` after starting.
+```sh
+uv run --locked uvicorn ebb_flow_manager_api.app:app --reload --host 0.0.0.0 --port 8001
+npm --prefix frontend run dev
+```
 
-### Docker
+Open `http://localhost:5173/`. FastAPI uses in-memory sample data by default. Set `EBBFLOW_CONFIG` to a manager YAML file for MongoDB and MQTT integration. The [example config](example/manager/config/config.yml) uses Compose service names. Adjust `database.connection_string` and `mqtt.broker` for processes running on the host.
 
-- Run the application with Docker:
-  ```sh
-  docker run -d -v ./config.yml:/home/app/config.yml ghcr.io/phofmeier/ebbflowmanager:latest
-  ```
+The [dev container setup](.devcontainer/setup.sh) installs FastAPI and the frontend, loads the catalogs and controller fixtures, and installs pre-commit hooks. The [Compose example](example/README.md) serves Vue and FastAPI on port 5006. The [Dockerfile](Dockerfile) builds the Vue and FastAPI images for Compose and releases.
 
-## Configuration
+## Verification
 
-- The `config.yml` file is the primary configuration file. Key sections include:
-  - **Database**: Connection string, database name, and collection configurations.
-  - **Logging**: Handlers, formatters, and root logger settings.
-  - **MQTT**: Broker, port, and publish topics.
+Run the FastAPI tests and build Vue from the repository root.
 
-- Example configuration provided in `config.yml`. Ensure all required fields are set.
+```sh
+uv run --locked --extra dev pytest
+npm --prefix frontend run build
+```
 
-## Key Files
+GitHub Actions runs the FastAPI suite with coverage. Run `uv run --locked --extra dev coverage run -m pytest` and `uv run --locked --extra dev coverage report -m` from the repository root for the local coverage report.
 
-- **Main Application**: `src/ebb_flow_manager/ebb_flow_manager_app.py`
-- **Database Interface**: `src/ebb_flow_manager/database/database.py`
-- **MQTT Connection**: `src/ebb_flow_manager/mqtt/mqtt.py`
-- **Views**:
-  - `src/ebb_flow_manager/views/controller_status.py` (status view)
-  - `src/ebb_flow_manager/views/controller_configurator/controller_configurator.py` (configurator view)
+Run pre-commit before committing. To run the repository-wide checks, use `uv run --locked --extra dev pre-commit run --all-files`.
 
-## Testing
+When changing startup, configuration, or deployment, update the relevant instructions in the [root README](README.md) and [Compose guide](example/README.md). Record user-facing changes under `[UNRELEASED]` in the [changelog](CHANGELOG.md).
 
-- Run tests using `pytest`:
-
-  ```sh
-  coverage run -m pytest -v -s
-  ```
-
-- Generate a coverage report:
-  ```sh
-  coverage report -m
-  ```
-
-## CI/CD
-
-- Pre-commit checks and unit tests are automated via GitHub Actions.
-- Ensure all pre-commit hooks pass before committing.
-
-## Docker Compose
-
-- Use the provided `example/README.md` for a Docker Compose setup with:
-  - Ebb Flow Manager
-  - MQTT2DB application
-  - Mosquitto MQTT broker
-  - MongoDB Database
-
-- Build and run:
-  ```sh
-  cd ./example
-  docker compose build
-  docker compose up
-  ```
-
-## Quirks and Gotchas
-
-- **Panel**: The application uses `panel` for serving, which may require additional setup or familiarity.
-- **MQTT and MongoDB**: External services are required. Ensure they are running and properly configured.
-- **Dependencies**: Some dependencies (e.g., `paho-mqtt`, `pymongo`) may require specific versions.
-
-## References
-
-- For detailed architecture, refer to:
-  - `src/ebb_flow_manager/database/database.py` (database interactions)
-  - `src/ebb_flow_manager/mqtt/mqtt.py` (MQTT interactions)
-  - `config.yml` (configuration structure)
-
-- Use `opencode.json` to reference this file for agent guidance.
+Follow the [release guide](RELEASING.md) when preparing and publishing a version.

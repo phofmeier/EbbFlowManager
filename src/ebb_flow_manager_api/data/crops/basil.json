@@ -1,0 +1,71 @@
+{
+  "name": "Basil",
+  "phases": {
+    "seedling": {
+      "name": "Seedling",
+      "targets": {
+        "ph": {
+          "min": 5.8,
+          "max": 6.2
+        },
+        "ec_ms_cm": {
+          "min": 0.3,
+          "max": 0.5
+        },
+        "reservoir_temperature_c": {
+          "min": 22,
+          "max": 23
+        },
+        "air_temperature_c": {
+          "min": 24,
+          "max": 24
+        },
+        "relative_humidity_pct": {
+          "min": 75,
+          "max": 75
+        },
+        "ppfd_umol_m2_s": {
+          "min": 250,
+          "max": 250
+        },
+        "dli_mol_m2_day": {
+          "min": 14.4,
+          "max": 14.4
+        }
+      }
+    },
+    "production": {
+      "name": "Production",
+      "targets": {
+        "ph": {
+          "min": 5.5,
+          "max": 6
+        },
+        "ec_ms_cm": {
+          "min": 1,
+          "max": 1.6
+        },
+        "reservoir_temperature_c": {
+          "min": 22,
+          "max": 23
+        },
+        "air_temperature_c": {
+          "min": 18,
+          "max": 25
+        },
+        "relative_humidity_pct": {
+          "min": 60,
+          "max": 70
+        },
+        "ppfd_umol_m2_s": {
+          "min": 260,
+          "max": 434
+        },
+        "dli_mol_m2_day": {
+          "min": 15,
+          "max": 25
+        }
+      }
+    }
+  }
+}
