@@ -15,7 +15,7 @@ Use the following labels:
 
 ### Added
 
-- [Minor] Added a Vue dashboard and FastAPI backend for monitoring controllers and editing pump and light schedules, with a built-in demo mode.
+- [Minor] Added a Vue dashboard and FastAPI backend for monitoring controllers and editing pump and light schedules.
 - [Minor] Added per-controller crop and grow-phase targets, grow-light fixture settings, PPFD and DLI estimates, and a light schedule calculator.
 - [Patch] Added new Data Viewer page.
 - [Patch] Support for configuration templates.
@@ -25,6 +25,7 @@ Use the following labels:
 
 ### Changed
 
+- [Minor] Require MongoDB configuration for FastAPI and initialize starter catalogs through the import commands before serving requests.
 - [Patch] Completed the bundled Basil and Lettuce grow targets, including a Basil seedling phase.
 - [Minor] Updated the Docker Compose example to run the Vue dashboard and FastAPI and import the starter catalogs on startup.
 - [Major] Docker releases publish FastAPI and Vue images. Panel is archived for manual use.
@@ -34,7 +35,9 @@ Use the following labels:
 
 ### Fixed
 
-- [Patch] Reject overlapping pump runs and light transitions, including overlaps across midnight.
+- [Patch] Reject overlapping runs and transitions, zero-duration pump runs with scheduled starts, and light ramps that reach midnight.
+- [Patch] Detect stale schedule edits and preserve the controller's exact dimmer values when saving unedited light levels.
+- [Patch] Keep MQTT2DB startup changes and Mosquitto persistence files out of version control.
 - [Patch] Require a fresh controller report to confirm schedule changes and show when a schedule already matched the last report.
 - [Patch] Apply the lettuce reservoir temperature migration once so later catalog edits survive restarts.
 - [Patch] Show empty charts in the archived Panel data viewer when telemetry is missing.

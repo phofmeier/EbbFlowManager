@@ -72,6 +72,8 @@ def run_import(catalog: Literal["crops", "grow_lights"]) -> None:
     try:
         with controllers.mongo:
             counts = write(documents, update=args.update)
+            if catalog == "crops" and args.source.resolve() == folder.resolve():
+                controllers.grow.migrate_lettuce_temperature(documents)
     except PyMongoError as error:
         parser.exit(
             1,

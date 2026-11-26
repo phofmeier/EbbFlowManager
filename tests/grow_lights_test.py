@@ -1,18 +1,12 @@
 import pytest
-from fastapi.testclient import TestClient
-
-from ebb_flow_manager_api.app import app
-from ebb_flow_manager_api.controllers import DemoControllers
 
 HABIBI_ID = "bloomstar-fluxshield-habibi-150"
 
 
 @pytest.mark.parametrize("saved_distance", [None, 30])
 def test_schedule_suggestion_uses_entered_distance_without_saving_it(
-    monkeypatch, saved_distance
+    client, saved_distance
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
     controller = "/api/controllers/1"
     installation = {"grow_light_id": HABIBI_ID, "canopy_distance_cm": saved_distance}
     saved = client.patch(f"{controller}/grow-light-installation", json=installation)
@@ -44,10 +38,8 @@ def test_schedule_suggestion_uses_entered_distance_without_saving_it(
     ],
 )
 def test_suggest_light_schedule_reaches_targets_without_saving(
-    monkeypatch, target_dli, start, ramp_down, estimated_dli
+    client, target_dli, start, ramp_down, estimated_dli
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
     controller = "/api/controllers/1"
     assert (
         client.put(
@@ -91,13 +83,12 @@ def test_suggest_light_schedule_reaches_targets_without_saving(
         (700, 17, 30, "This fixture can reach 624"),
         (322, 0.1, 120, "Minimum DLI"),
         (322, 30, 0, "Maximum DLI"),
+        (322, 27.24, 30, "Maximum DLI"),
     ],
 )
 def test_schedule_suggestion_explains_unreachable_targets(
-    monkeypatch, ppfd, dli, rise, feedback
+    client, ppfd, dli, rise, feedback
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
     controller = "/api/controllers/1"
     assert (
         client.put(
@@ -119,10 +110,8 @@ def test_schedule_suggestion_explains_unreachable_targets(
 
 
 def test_long_schedule_extends_daylight_at_both_ends(
-    monkeypatch,
+    client,
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
     controller = "/api/controllers/1"
     targets = {
         "max_ppfd_umol_m2_s": 322.05,
@@ -150,9 +139,8 @@ def test_long_schedule_extends_daylight_at_both_ends(
     assert suggestion["dli_mol_m2_day"] == pytest.approx(25, abs=0.01)
 
 
-def test_light_catalog_contains_the_manufacturer_calibration(monkeypatch):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    response = TestClient(app).get("/api/grow-lights")
+def test_light_catalog_contains_the_manufacturer_calibration(client):
+    response = client.get("/api/grow-lights")
 
     assert response.status_code == 200
     light = next(light for light in response.json() if light["id"] == HABIBI_ID)
@@ -181,9 +169,8 @@ def test_light_catalog_contains_the_manufacturer_calibration(monkeypatch):
         (0, 60, 0, "off"),
     ],
 )
-def test_estimate_light_ppfd(monkeypatch, output_percent, distance_cm, ppfd, status):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    response = TestClient(app).get(
+def test_estimate_light_ppfd(client, output_percent, distance_cm, ppfd, status):
+    response = client.get(
         f"/api/grow-lights/{HABIBI_ID}/ppfd",
         params={"output_percent": output_percent, "canopy_distance_cm": distance_cm},
     )
@@ -195,9 +182,7 @@ def test_estimate_light_ppfd(monkeypatch, output_percent, distance_cm, ppfd, sta
     }
 
 
-def test_controller_uses_its_installed_fixture_for_scheduled_ppfd(monkeypatch):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
+def test_controller_uses_its_installed_fixture_for_scheduled_ppfd(client):
     response = client.put(
         "/api/controllers/1/grow-light-installation",
         json={"grow_light_id": HABIBI_ID, "canopy_distance_cm": 25},
@@ -260,14 +245,39 @@ def test_controller_uses_its_installed_fixture_for_scheduled_ppfd(monkeypatch):
     assert dashboard["grow_light_installation"] == updated.json()
 
 
+def test_dashboard_keeps_unsupported_firmware_schedule_editable(
+    client, demo_controllers
+):
+    demo_controllers.apply(
+        1,
+        "light",
+        {
+            "nr_light_changes": 2,
+            "times_min_per_day": [60, 1410],
+            "intensity": [32767, 0],
+            "rise_time_min": [0, 60],
+        },
+    )
+    client.put(
+        "/api/controllers/1/grow-light-installation",
+        json={"grow_light_id": HABIBI_ID, "canopy_distance_cm": 30},
+    ).raise_for_status()
+
+    light = client.get("/api/controllers/1/dashboard").json()["light"]
+
+    assert light["transition_reaches_midnight"]
+    assert light["points"] == []
+    assert "dli_mol_m2_day" not in light
+    assert light["changes"][-1]["time"] == "23:30"
+
+
 @pytest.mark.parametrize(
     ("output_percent", "distance_cm"), [(-1, 30), (101, 30), (35, 0), (35, "inf")]
 )
 def test_estimate_requires_a_valid_output_percentage_and_distance(
-    monkeypatch, output_percent, distance_cm
+    client, output_percent, distance_cm
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    response = TestClient(app).get(
+    response = client.get(
         f"/api/grow-lights/{HABIBI_ID}/ppfd",
         params={"output_percent": output_percent, "canopy_distance_cm": distance_cm},
     )
@@ -275,10 +285,8 @@ def test_estimate_requires_a_valid_output_percentage_and_distance(
 
 
 def test_fixture_and_distance_can_be_saved_independently_for_each_controller(
-    monkeypatch,
+    client,
 ):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
     first = "/api/controllers/1"
     second = "/api/controllers/2"
 

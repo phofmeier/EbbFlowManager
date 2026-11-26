@@ -1,12 +1,4 @@
-from fastapi.testclient import TestClient
-
-from ebb_flow_manager_api.app import app
-from ebb_flow_manager_api.controllers import DemoControllers
-
-
-def test_crop_phases_and_active_selection_are_controller_scoped(monkeypatch):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
+def test_crop_phases_and_active_selection_are_controller_scoped(client):
     crop = client.put(
         "/api/crops/basil/phases/production",
         json={
@@ -43,9 +35,8 @@ def test_crop_phases_and_active_selection_are_controller_scoped(monkeypatch):
     )
 
 
-def test_default_profiles_contain_distinct_targets_for_each_lettuce_phase(monkeypatch):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    catalog = TestClient(app).get("/api/crops").json()
+def test_default_profiles_contain_distinct_targets_for_each_lettuce_phase(client):
+    catalog = client.get("/api/crops").json()
 
     lettuce = next(crop for crop in catalog if crop["id"] == "lettuce")
     phases = lettuce["phases"]
@@ -67,9 +58,7 @@ def test_default_profiles_contain_distinct_targets_for_each_lettuce_phase(monkey
     assert production["dli_mol_m2_day"] == {"min": 17, "max": 17}
 
 
-def test_kohlrabi_has_complete_seedling_and_production_targets(monkeypatch):
-    monkeypatch.setattr("ebb_flow_manager_api.app.controllers", DemoControllers())
-    client = TestClient(app)
+def test_kohlrabi_has_complete_seedling_and_production_targets(client):
     catalog = client.get("/api/crops").json()
     kohlrabi = next(crop for crop in catalog if crop["id"] == "kohlrabi")
     phases = kohlrabi["phases"]

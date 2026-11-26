@@ -15,10 +15,11 @@ docker compose -f example/compose.yaml up --build --wait
 ```
 
 Open [http://localhost:5006/](http://localhost:5006/). Nginx serves the
-dashboard and forwards `/api/` requests to FastAPI. The API imports missing
-crop profiles and grow-light fixtures into MongoDB before startup. Existing
-catalog records are kept. The controller list starts empty on a fresh database
-until MQTT2DB records a controller's status.
+dashboard and forwards `/api/` requests to FastAPI. The API container requires
+the manager YAML and runs the catalog imports before starting FastAPI. The
+imports add missing records to MongoDB and migrate unmodified legacy lettuce
+targets. FastAPI reads the resulting catalogs from MongoDB. The controller
+list starts empty on a fresh database until MQTT2DB records a controller's status.
 
 Configure your [Ebb Flow Controller](https://github.com/phofmeier/EbbFlowControl)
 to use the Docker host's reachable IP address or hostname on MQTT port `1883`.
@@ -69,6 +70,9 @@ reach the broker and that MQTT2DB is writing to the same database the API uses
 configuration with a `ts_received` from the current save attempt and newer than
 any previous report.
 
+MQTT2DB copies its read-only configuration into the container at startup.
+Restart MQTT2DB after editing the host configuration.
+
 ## Stop the stack
 
 ```sh
@@ -77,4 +81,4 @@ docker compose -f example/compose.yaml down
 
 The `mongodb-data` named volume keeps controller data, catalog edits, crop
 selections, and fixture settings across restarts. Mosquitto stores its data
-under `mosquitto/data/`.
+under `mosquitto/data/`, which Git ignores.

@@ -41,8 +41,14 @@ services:
     # The published image is amd64-only.
     platform: linux/amd64
     restart: unless-stopped
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        cp /tmp/mqtt2db-config.yml config.yml
+        exec mqtt2db
     volumes:
-      - ./mqtt2db/config/config.yml:/home/app/config.yml
+      - ./mqtt2db/config/config.yml:/tmp/mqtt2db-config.yml:ro
       - ./mqtt2db/logs:/home/app/logs
     depends_on:
       db:

@@ -2,7 +2,6 @@ from bisect import bisect_left
 from itertools import pairwise
 from math import isfinite, sqrt
 from pathlib import Path
-from threading import Lock
 from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
@@ -223,70 +222,29 @@ class GrowLightInstallation(GrowLightSettings):
     canopy_distance_cm: CanopyDistance
 
 
-class DemoGrowLights:
-    def __init__(self) -> None:
-        self.lights = {
-            light_id: GrowLight(id=light_id, **light)
-            for light_id, light in load_grow_lights().items()
-        }
-        self.installations: dict[int, GrowLightSettings] = {}
-        self.installation_lock = Lock()
-
-    def catalog(self) -> list[GrowLight]:
-        return sorted(self.lights.values(), key=lambda light: light.name)
-
-    def light(self, light_id: str) -> GrowLight | None:
-        return self.lights.get(light_id)
-
-    def installation(self, controller_id: int) -> GrowLightSettings | None:
-        with self.installation_lock:
-            return self.installations.get(controller_id)
-
-    def save_installation(
-        self, controller_id: int, update: GrowLightSettings
-    ) -> GrowLightSettings:
-        with self.installation_lock:
-            current = self.installations.get(controller_id, GrowLightSettings())
-            settings = current.model_copy(update=update.model_dump(exclude_unset=True))
-            self.installations[controller_id] = settings
-            return settings
-
-
 class MongoGrowLights:
     def __init__(
         self, lights: Collection[Document], installations: Collection[Document]
     ) -> None:
         self.lights = lights
         self.installations = installations
-        self.seed_lock = Lock()
-        self.seeded = False
 
     def import_lights(
         self, profiles: dict[str, Document], *, update: bool = False
     ) -> dict[str, int]:
         return upsert_catalog(self.lights, profiles, update=update)
 
-    def ensure_starter_lights(self) -> None:
-        with self.seed_lock:
-            if self.seeded:
-                return
-            self.import_lights(load_grow_lights())
-            self.seeded = True
-
     def catalog(self) -> list[GrowLight]:
-        self.ensure_starter_lights()
         return [
             GrowLight(id=light.pop("_id"), **light)
             for light in self.lights.find().sort("name")
         ]
 
     def light(self, light_id: str) -> GrowLight | None:
-        self.ensure_starter_lights()
         light = self.lights.find_one({"_id": light_id}, {"_id": 0})
         return GrowLight(id=light_id, **light) if light else None
 
     def installation(self, controller_id: int) -> GrowLightSettings | None:
-        self.ensure_starter_lights()
         installation = self.installations.find_one({"_id": controller_id}, {"_id": 0})
         return GrowLightSettings.model_validate(installation) if installation else None
 

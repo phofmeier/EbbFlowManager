@@ -184,7 +184,7 @@ async function changePhase(event) {
 function editSchedule(kind) {
   saveError.value = "";
   lightErrors.value.fixture = "";
-  editor.value = kind;
+  editor.value = { kind, revision: dashboard.value.schedule_revisions[kind] };
 }
 
 async function saveLightSetting(kind, update) {
@@ -222,7 +222,7 @@ function saveCanopyDistance() {
 }
 
 async function saveSchedule(data) {
-  const kind = editor.value;
+  const { kind, revision } = editor.value;
   const section = kind === "pump" ? "pump_cycles" : "light";
   saving.value = true;
   saveError.value = "";
@@ -230,7 +230,10 @@ async function saveSchedule(data) {
   try {
     const response = await fetch(`${endpoint}/${kind}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Schedule-Revision": revision,
+      },
       body: JSON.stringify(data),
     });
     const result = await response.json();
@@ -238,7 +241,10 @@ async function saveSchedule(data) {
       const detail = Array.isArray(result.detail)
         ? result.detail[0]?.msg
         : result.detail;
-      throw new Error(detail ?? "Could not send the schedule.");
+      localChange.value =
+        response.status >= 500 ? { section, state: "unconfirmed" } : null;
+      saveError.value = detail ?? "Could not send the schedule.";
+      return;
     }
 
     localChange.value = { section, state: result.state };
@@ -654,17 +660,26 @@ const storage = computed(() => {
         The fixture calibration could not estimate PPFD for the full schedule.
       </p>
       <template v-if="dashboard.light">
-        <p class="chart-caption">Controller time</p>
-        <DashboardChart
-          label="24-hour grow-light schedule"
-          :series="lightSeries"
-          :x-range="[0, 1440]"
-          :x-labels="['00:00', '06:00', '12:00', '18:00', '24:00']"
-          :y-range="[0, 100]"
-          y-suffix="%"
-          :right-y-range="ppfdRange"
-          legend
-        />
+        <p
+          v-if="dashboard.light.transition_reaches_midnight"
+          class="light-feedback"
+          role="alert"
+        >
+          Edit the schedule so every light transition finishes before midnight.
+        </p>
+        <template v-else>
+          <p class="chart-caption">Controller time</p>
+          <DashboardChart
+            label="24-hour grow-light schedule"
+            :series="lightSeries"
+            :x-range="[0, 1440]"
+            :x-labels="['00:00', '06:00', '12:00', '18:00', '24:00']"
+            :y-range="[0, 100]"
+            y-suffix="%"
+            :right-y-range="ppfdRange"
+            legend
+          />
+        </template>
         <ul
           v-if="dashboard.light.changes.length"
           class="light-times"
@@ -798,8 +813,8 @@ const storage = computed(() => {
 
   <ScheduleSettings
     v-if="editor"
-    :kind="editor"
-    :schedule="dashboard[editor]"
+    :kind="editor.kind"
+    :schedule="dashboard[editor.kind]"
     :saving="saving"
     :error="saveError"
     :schedule-enabled="dashboard.connection.connected"

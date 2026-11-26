@@ -1,6 +1,4 @@
-from copy import deepcopy
 from pathlib import Path
-from threading import Lock
 from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
@@ -96,48 +94,12 @@ class GrowSelection(BaseModel):
     phase_id: GrowId
 
 
-class DemoGrowProfiles:
-    def __init__(self) -> None:
-        self.crops: dict[str, Document] = {
-            crop_id: {"id": crop_id, **crop}
-            for crop_id, crop in load_crop_profiles().items()
-        }
-        self.selections: dict[int, Document] = {}
-        self.lock = Lock()
-
-    def catalog(self) -> list[Document]:
-        with self.lock:
-            return deepcopy(sorted(self.crops.values(), key=lambda crop: crop["name"]))
-
-    def save_phase(self, crop_id: str, phase_id: str, update: GrowPhaseUpdate) -> None:
-        with self.lock:
-            crop = self.crops.setdefault(crop_id, {"id": crop_id, "phases": {}})
-            crop["name"] = update.crop_name
-            crop["phases"][phase_id] = update.phase()
-
-    def has_phase(self, selection: GrowSelection) -> bool:
-        with self.lock:
-            return selection.phase_id in self.crops.get(selection.crop_id, {}).get(
-                "phases", {}
-            )
-
-    def selection(self, controller_id: int) -> Document | None:
-        with self.lock:
-            return self.selections.get(controller_id)
-
-    def save_selection(self, controller_id: int, selection: GrowSelection) -> None:
-        with self.lock:
-            self.selections[controller_id] = selection.model_dump()
-
-
 class MongoGrowProfiles:
     def __init__(
         self, crops: Collection[Document], selections: Collection[Document]
     ) -> None:
         self.crops = crops
         self.selections = selections
-        self.seed_lock = Lock()
-        self.seeded = False
 
     def import_profiles(
         self, profiles: dict[str, Document], *, update: bool = False
@@ -152,43 +114,37 @@ class MongoGrowProfiles:
             }
         return upsert_catalog(self.crops, profiles, update=update)
 
-    def ensure_starter_crops(self) -> None:
-        with self.seed_lock:
-            if self.seeded:
-                return
-            profiles = load_crop_profiles()
-            self.import_profiles(profiles)
-            lettuce = profiles.get("lettuce", {})
-            production = lettuce.get("phases", {}).get("production", {})
-            previous_targets = production.get("targets", {}).copy()
-            temperature = previous_targets.pop("reservoir_temperature_c", None)
-            if temperature is not None:
-                targets_path = "phases.production.targets"
-                pending_migration = {
-                    "_id": "lettuce",
-                    LETTUCE_TEMPERATURE_MIGRATION: {"$exists": False},
+    def migrate_lettuce_temperature(self, profiles: dict[str, Document]) -> None:
+        lettuce = profiles.get("lettuce", {})
+        production = lettuce.get("phases", {}).get("production", {})
+        previous_targets = production.get("targets", {}).copy()
+        temperature = previous_targets.pop("reservoir_temperature_c", None)
+        if temperature is None:
+            return
+
+        targets_path = "phases.production.targets"
+        pending_migration = {
+            "_id": "lettuce",
+            LETTUCE_TEMPERATURE_MIGRATION: {"$exists": False},
+        }
+        self.crops.update_one(
+            {**pending_migration, targets_path: previous_targets},
+            {
+                "$set": {
+                    f"{targets_path}.reservoir_temperature_c": temperature,
+                    LETTUCE_TEMPERATURE_MIGRATION: True,
                 }
-                self.crops.update_one(
-                    {**pending_migration, targets_path: previous_targets},
-                    {
-                        "$set": {
-                            f"{targets_path}.reservoir_temperature_c": temperature,
-                            LETTUCE_TEMPERATURE_MIGRATION: True,
-                        }
-                    },
-                )
-                self.crops.update_one(
-                    pending_migration, {"$set": {LETTUCE_TEMPERATURE_MIGRATION: True}}
-                )
-            self.seeded = True
+            },
+        )
+        self.crops.update_one(
+            pending_migration, {"$set": {LETTUCE_TEMPERATURE_MIGRATION: True}}
+        )
 
     def catalog(self) -> list[Document]:
-        self.ensure_starter_crops()
         crops = self.crops.find({}, {LETTUCE_TEMPERATURE_MIGRATION: 0}).sort("name")
         return [{"id": crop.pop("_id"), **crop} for crop in crops]
 
     def save_phase(self, crop_id: str, phase_id: str, update: GrowPhaseUpdate) -> None:
-        self.ensure_starter_crops()
         self.crops.update_one(
             {"_id": crop_id},
             {"$set": {"name": update.crop_name, f"phases.{phase_id}": update.phase()}},
@@ -196,7 +152,6 @@ class MongoGrowProfiles:
         )
 
     def has_phase(self, selection: GrowSelection) -> bool:
-        self.ensure_starter_crops()
         return (
             self.crops.find_one(
                 {

@@ -16,14 +16,18 @@ uv sync --locked --extra dev
 npm --prefix frontend ci
 ```
 
-Start FastAPI and Vite in separate terminals.
+Set `EBBFLOW_CONFIG` to the manager YAML file. Import the bundled catalogs into
+MongoDB, then start FastAPI and Vite in separate terminals.
 
 ```sh
+export EBBFLOW_CONFIG=config.yml
+uv run --locked python -m ebb_flow_manager_api.import_crop_profiles
+uv run --locked python -m ebb_flow_manager_api.import_grow_lights
 uv run --locked uvicorn ebb_flow_manager_api.app:app --reload --host 0.0.0.0 --port 8001
 npm --prefix frontend run dev
 ```
 
-Open `http://localhost:5173/`. FastAPI uses in-memory sample data by default. Set `EBBFLOW_CONFIG` to a manager YAML file for MongoDB and MQTT integration. The [example config](example/manager/config/config.yml) uses Compose service names. Adjust `database.connection_string` and `mqtt.broker` for processes running on the host.
+Open `http://localhost:5173/`. FastAPI requires configuration and uses MongoDB for controller data and catalogs. The [example config](example/manager/config/config.yml) uses Compose service names. Adjust `database.connection_string` and `mqtt.broker` for processes running on the host.
 
 The [dev container setup](.devcontainer/setup.sh) installs FastAPI and the frontend, loads the catalogs and controller fixtures, and installs pre-commit hooks. The [Compose example](example/README.md) serves Vue and FastAPI on port 5006. The [Dockerfile](Dockerfile) builds the Vue and FastAPI images for Compose and releases.
 

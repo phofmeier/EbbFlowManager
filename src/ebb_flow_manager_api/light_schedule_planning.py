@@ -45,7 +45,7 @@ def suggest_light_schedule(
     output, peak = _output_for_ppfd(targets.max_ppfd_umol_m2_s, table, distance_cm)
     rise = targets.rise_time_minutes
     min_on_minutes = max(1, rise)
-    max_on_minutes = MINUTES_PER_DAY - max(1, rise)
+    max_on_minutes = MINUTES_PER_DAY - rise - 1
     shortest = _on_off_schedule(output, rise, min_on_minutes)
     minimum = present_light(shortest.firmware_config())
     assert minimum is not None

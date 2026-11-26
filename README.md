@@ -26,13 +26,31 @@ flowchart LR
 
 ## Run the dashboard
 
-### Local demo
+### Docker Compose
 
-Use Python 3.13 or later, `uv`, and Node.js 24 with npm. Start FastAPI from the
-repository root with `EBBFLOW_CONFIG` unset.
+For a complete local stack, follow the [Docker Compose example](example/README.md).
+It serves the dashboard and API together on port `5006` and is for trusted
+development networks only. Production requires a separate, authenticated
+configuration.
+
+Stable releases publish FastAPI as `ghcr.io/phofmeier/ebbflowmanager:latest`
+and the Vue dashboard as `ghcr.io/phofmeier/ebbflowmanager:latest-frontend`.
+Use both images together following the [published image instructions](example/README.md#use-published-images).
+
+### Run FastAPI and Vite directly
+
+Use Python 3.13 or later, `uv`, and Node.js 24 with npm. FastAPI requires
+`EBBFLOW_CONFIG` at startup. Copy the [example manager YAML](example/manager/config/config.yml)
+to `config.yml` at the repository root. Set `database.connection_string` and
+`mqtt.broker` to addresses reachable from FastAPI. The example's `db` and
+`mosquitto` service names resolve inside Compose and the dev container. For
+FastAPI running on the host against the example stack, use `localhost:27017`
+and `localhost`, respectively. Run the [catalog imports](#manage-the-catalogs)
+before starting the API.
 
 ```sh
-uv run --locked uvicorn ebb_flow_manager_api.app:app --reload --host 0.0.0.0 --port 8001
+EBBFLOW_CONFIG=config.yml \
+  uv run --locked uvicorn ebb_flow_manager_api.app:app --reload --host 0.0.0.0 --port 8001
 ```
 
 In a second terminal, run these commands from the repository root and open
@@ -44,40 +62,21 @@ npm --prefix frontend ci
 npm --prefix frontend run dev
 ```
 
-Demo mode includes sample controllers and catalogs. It stores changes in
-memory until FastAPI restarts and runs without MongoDB, MQTT, or hardware.
-
-### Live data
-
-For a complete local stack, follow the [Docker Compose example](example/README.md).
-It serves the dashboard and API together on port `5006` and is for trusted
-development networks only. Production requires a separate, authenticated
-configuration.
-
-Stable releases publish FastAPI as `ghcr.io/phofmeier/ebbflowmanager:latest`
-and the Vue dashboard as `ghcr.io/phofmeier/ebbflowmanager:latest-frontend`.
-Use both images together following the [published image instructions](example/README.md#use-published-images).
-
-To run FastAPI against an existing stack, copy the [example manager YAML](example/manager/config/config.yml)
-to `config.yml` at the repository root. Set `database.connection_string` and
-`mqtt.broker` to addresses reachable from FastAPI. The example's `db` and
-`mosquitto` service names resolve inside Compose and the dev container. For
-FastAPI running on the host against the example stack, use `localhost:27017`
-and `localhost`, respectively.
-
-```sh
-EBBFLOW_CONFIG=config.yml \
-  uv run --locked uvicorn ebb_flow_manager_api.app:app --reload --host 0.0.0.0 --port 8001
-```
-
-Run Vite as in the local demo. The controller list comes from `status_static`.
+For a demo with sample controllers, use the [dev container](#dev-container).
+The controller list comes from `status_static`.
 FastAPI reads reported schedules from `config_static`, reservoir history from
 `level_timed`, and heap and storage diagnostics from `heap_timed`. Override the
 collection names in the manager YAML when using a different MongoDB layout.
 
-Schedule edits require a connected controller. The API rejects overlapping pump
-runs and light transitions, including overlaps across midnight. A run or
-transition may end at the next scheduled start.
+Schedule edits require a connected controller. Pump runs require a positive
+duration when starts are set. Clear the start times to disable scheduled pumping.
+A pump run or light transition may end at the next scheduled start, and light
+transitions in a schedule with multiple changes must finish before midnight.
+
+Each dashboard includes `schedule_revisions` for `pump` and `light`. The editor
+sends the revision from when it opened. API clients can send the same value in
+the `X-Schedule-Revision` header when saving a schedule. If the reported schedule
+has changed and differs from the requested schedule, the API returns HTTP 409.
 
 FastAPI publishes changed schedules over MQTT and returns `applied` after a
 matching MongoDB report whose `ts_received` is at or after the save began and
@@ -119,9 +118,9 @@ See the bundled [crop profiles](src/ebb_flow_manager_api/data/crops/README.md) a
 [grow-light fixtures](src/ebb_flow_manager_api/data/grow_lights/README.md)
 for data notes and sources.
 
-FastAPI seeds missing starter records when the catalogs are first used. To
-import them explicitly, run these commands from the repository root with your
-manager YAML.
+FastAPI reads the catalogs from MongoDB. To initialize them for a direct
+FastAPI launch, run these commands from the repository root with your manager
+YAML. The Docker API image runs both imports before starting FastAPI.
 
 ```sh
 uv run --locked python -m ebb_flow_manager_api.import_crop_profiles --config config.yml
@@ -130,7 +129,9 @@ uv run --locked python -m ebb_flow_manager_api.import_grow_lights --config confi
 
 Both commands validate all source files before writing. Use `EBBFLOW_CONFIG`
 in place of `--config`, or pass `--source` to read another directory. The
-default import inserts missing records. With `--update`, the crop importer
+default import inserts missing records. The bundled crop import also adds the
+production reservoir temperature to legacy lettuce targets that still match
+the previous defaults. With `--update`, the crop importer
 updates crop names and replaces the phases supplied in the source. The
 fixture importer updates fixture names and PPFD tables. Controller selections
 and fixture assignments are stored separately and survive a re-import.

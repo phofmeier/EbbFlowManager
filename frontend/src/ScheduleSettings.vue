@@ -87,6 +87,7 @@ const rows = ref(
     : (props.schedule?.changes ?? []).map((change) => ({
         key: nextRowId++,
         ...change,
+        initialOutputPercent: change.output_percent,
       })),
 );
 watch(rows, () => (suggestion.value = null), { deep: true, flush: "sync" });
@@ -147,13 +148,14 @@ function submit() {
     isPump.value
       ? { duration_seconds: Number(duration.value), start_times: starts }
       : {
-          changes: rows.value.map(
-            ({ time, output_percent, transition_minutes }) => ({
-              time,
-              output_percent: Number(output_percent),
-              transition_minutes: Number(transition_minutes),
-            }),
-          ),
+          changes: rows.value.map((row) => ({
+            time: row.time,
+            output_percent:
+              row.output_percent === row.initialOutputPercent
+                ? (row.output_percent_exact ?? Number(row.output_percent))
+                : Number(row.output_percent),
+            transition_minutes: Number(row.transition_minutes),
+          })),
         },
   );
 }

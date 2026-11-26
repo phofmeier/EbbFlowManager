@@ -40,7 +40,9 @@ class PumpSchedule(BaseModel):
         return sorted(starts)
 
     @model_validator(mode="after")
-    def reject_overlapping_runs(self) -> Self:
+    def validate_runs(self) -> Self:
+        if self.start_times and self.duration_seconds == 0:
+            raise ValueError("Pump run duration must be positive when starts are set.")
         for time, gap_minutes in zip(self.start_times, _daily_gaps(self.start_times)):
             if self.duration_seconds > gap_minutes * 60:
                 raise ValueError(f"The pump run at {time} overlaps the next start.")
@@ -71,6 +73,12 @@ class LightSchedule(BaseModel):
         ordered = sorted(changes, key=lambda change: change.time)
         times = [change.time for change in ordered]
         for change, gap in zip(ordered, _daily_gaps(times)):
+            if len(ordered) > 1 and _ends_at_or_after_midnight(
+                minute_of_day(change.time), change.transition_minutes
+            ):
+                raise ValueError(
+                    f"The transition at {change.time} must finish before midnight."
+                )
             if change.transition_minutes > gap:
                 raise ValueError(
                     f"The light transition at {change.time} overlaps the next change."
@@ -100,6 +108,10 @@ def clock_time(minute: int) -> str:
     return f"{minute // 60:02d}:{minute % 60:02d}"
 
 
+def _ends_at_or_after_midnight(minute: int, transition: int) -> bool:
+    return minute + transition >= MINUTES_PER_DAY
+
+
 def present_pump(config: dict[str, Any] | None) -> dict | None:
     if config is None:
         return None
@@ -120,21 +132,31 @@ def present_light(config: dict[str, Any] | None) -> dict | None:
             config.get("rise_time_min", []),
         )
     )
+    transition_reaches_midnight = len(changes) > 1 and any(
+        _ends_at_or_after_midnight(minute, transition)
+        for minute, _, transition in changes
+    )
     return {
         "changes": [
             {
                 "time": clock_time(minute),
                 "output_percent": output_percent(raw),
+                "output_percent_exact": exact_output_percent(raw),
                 "transition_minutes": transition,
             }
             for minute, raw, transition in changes
         ],
-        "points": light_curve(changes),
+        "points": [] if transition_reaches_midnight else light_curve(changes),
+        "transition_reaches_midnight": transition_reaches_midnight,
     }
 
 
+def exact_output_percent(raw: int) -> float:
+    return max(0, min(raw, DIMMER_MAX)) * 100 / DIMMER_MAX
+
+
 def output_percent(raw: int) -> float:
-    return round(max(0, min(raw, DIMMER_MAX)) * 100 / DIMMER_MAX, 2)
+    return round(exact_output_percent(raw), 2)
 
 
 def light_curve(changes: list[tuple[int, int, int]]) -> list[dict]:

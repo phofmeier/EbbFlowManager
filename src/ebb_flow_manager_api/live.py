@@ -32,8 +32,6 @@ def report_timestamp(value: object) -> datetime | None:
 
 
 class LiveControllers:
-    demo = False
-
     def __init__(self, config_path: str) -> None:
         config = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
         database = config["database"]
